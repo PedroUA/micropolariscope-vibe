@@ -1,0 +1,9 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 65 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Perfil">
+<circle id="Ellipse 8" cx="32.5" cy="32.5" r="32.5" fill="var(--fill-0, #F17522)"/>
+<g id="Frame">
+<path id="Vector" d="M33.0665 33.0665C37.0552 33.0665 40.2887 29.833 40.2887 25.8443C40.2887 21.8556 37.0552 18.6221 33.0665 18.6221C29.0777 18.6221 25.8442 21.8556 25.8442 25.8443C25.8442 29.833 29.0777 33.0665 33.0665 33.0665Z" fill="var(--fill-0, white)"/>
+<path id="Vector_2" d="M20.4277 47.511C20.4277 39.5665 26.9277 34.8721 33.0666 34.8721C39.2055 34.8721 45.7055 39.5665 45.7055 47.511" fill="var(--fill-0, white)"/>
+</g>
+</g>
+</svg>
