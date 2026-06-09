@@ -878,6 +878,118 @@ export default function App() {
     }
   }, [events, newPostEventId]);
 
+  // Desktop Drag-to-Scroll vertical utility for feed and details
+  useEffect(() => {
+    const slider = document.querySelector('.screen-content');
+    if (!slider) return;
+
+    let isDown = false;
+    let startY;
+    let scrollTop;
+
+    const onMouseDown = (e) => {
+      // Ignore click on interactive buttons, inputs, textareas
+      if (e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea') || e.target.closest('svg') || e.target.closest('.eventos-scroll-bar')) {
+        return;
+      }
+      isDown = true;
+      slider.classList.add('active-dragging');
+      startY = e.pageY - slider.offsetTop;
+      scrollTop = slider.scrollTop;
+    };
+
+    const onMouseLeave = () => {
+      isDown = false;
+      slider.classList.remove('active-dragging');
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+      slider.classList.remove('active-dragging');
+    };
+
+    const onMouseMove = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const y = e.pageY - slider.offsetTop;
+      const walk = (y - startY) * 1.5; // multiplier for scrolling speed
+      slider.scrollTop = scrollTop - walk;
+    };
+
+    const onDragStart = (e) => {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    };
+
+    slider.addEventListener('mousedown', onMouseDown);
+    slider.addEventListener('mouseleave', onMouseLeave);
+    slider.addEventListener('mouseup', onMouseUp);
+    slider.addEventListener('mousemove', onMouseMove);
+    slider.addEventListener('dragstart', onDragStart);
+
+    return () => {
+      slider.removeEventListener('mousedown', onMouseDown);
+      slider.removeEventListener('mouseleave', onMouseLeave);
+      slider.removeEventListener('mouseup', onMouseUp);
+      slider.removeEventListener('mousemove', onMouseMove);
+      slider.removeEventListener('dragstart', onDragStart);
+    };
+  }, [currentTab, viewingEventId]);
+
+  // Desktop Drag-to-Scroll horizontal utility for events bar
+  useEffect(() => {
+    const slider = document.querySelector('.eventos-scroll-bar');
+    if (!slider) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    const onMouseDown = (e) => {
+      if (e.target.closest('button')) return;
+      isDown = true;
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    };
+
+    const onMouseLeave = () => {
+      isDown = false;
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+    };
+
+    const onMouseMove = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      slider.scrollLeft = scrollLeft - walk;
+    };
+
+    const onDragStart = (e) => {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    };
+
+    slider.addEventListener('mousedown', onMouseDown);
+    slider.addEventListener('mouseleave', onMouseLeave);
+    slider.addEventListener('mouseup', onMouseUp);
+    slider.addEventListener('mousemove', onMouseMove);
+    slider.addEventListener('dragstart', onDragStart);
+
+    return () => {
+      slider.removeEventListener('mousedown', onMouseDown);
+      slider.removeEventListener('mouseleave', onMouseLeave);
+      slider.removeEventListener('mouseup', onMouseUp);
+      slider.removeEventListener('mousemove', onMouseMove);
+      slider.removeEventListener('dragstart', onDragStart);
+    };
+  }, [currentTab, viewingEventId]);
+
   const currentEvent = viewingEventId ? events.find(e => e.id === viewingEventId) : null;
 
   return (

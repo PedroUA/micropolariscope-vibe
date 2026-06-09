@@ -51,6 +51,15 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 body {
   font-family: var(--font-family);
   background-color: #0f0f12;
@@ -168,6 +177,13 @@ body {
   position: relative;
   padding-bottom: 90px; /* Space for floating navbar */
   scroll-behavior: smooth;
+  cursor: grab;
+  user-select: none;
+}
+
+.screen-content:active,
+.screen-content.active-dragging {
+  cursor: grabbing;
 }
 
 .screen-content.no-padding {
@@ -256,6 +272,12 @@ body {
   padding: 8px 16px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+}
+
+.eventos-scroll-bar:active {
+  cursor: grabbing;
 }
 
 .eventos-scroll-bar::-webkit-scrollbar {
