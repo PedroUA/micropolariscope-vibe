@@ -142,10 +142,13 @@ body {
 @media (max-width: 500px), (max-height: 900px) {
   body {
     background-color: #fff;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
   .phone-shell {
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     border-radius: 0;
     padding: 0;
     box-shadow: none;
@@ -167,6 +170,10 @@ body {
   scroll-behavior: smooth;
 }
 
+.screen-content.no-padding {
+  padding-bottom: 0;
+}
+
 /* Brand Header */
 .brand-header {
   position: sticky;
@@ -179,7 +186,6 @@ body {
   justify-content: space-between;
   padding: 0 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding-top: 10px; /* Safe padding for notch if screen expands */
 }
 
 .brand-logo-container {

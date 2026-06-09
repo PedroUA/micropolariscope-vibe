@@ -882,9 +882,6 @@ export default function App() {
 
   return (
     <div className="phone-shell">
-      {/* Speaker & Sensor Bezel Notch */}
-      <div className="phone-notch"></div>
-
       <div className="app-viewport">
         {/* Floating Back Button for Event Detail View */}
         {currentTab === 'feed' && viewingEventId && (
@@ -919,7 +916,7 @@ export default function App() {
         )}
 
         {/* --- SCREEN CONTENT AREA --- */}
-        <main className="screen-content">
+        <main className={`screen-content ${currentTab === 'camera' ? 'no-padding' : ''}`}>
           
           {/* TAB 1: MOMENTS FEED */}
           {currentTab === 'feed' && (
@@ -1501,78 +1498,80 @@ export default function App() {
         </main>
 
         {/* --- FLOATING BOTTOM NAVBAR --- */}
-        <nav className="navbar-floating-capsule">
-          <button 
-            className={`navbar-item ${currentTab === 'feed' ? 'active' : ''}`}
-            onClick={() => {
-              setCurrentTab('feed');
-              setViewingEventId(null);
-              setExpandedMomentId(null);
-            }}
-            aria-label="Home"
-          >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path 
-                d="M9 22V15C9 13.3431 10.3431 12 12 12C13.6569 12 15 13.3431 15 15V22H21V9.5L12 3L3 9.5V22Z" 
-                stroke="white" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-                fill={currentTab === 'feed' ? 'white' : 'none'}
-              />
-            </svg>
-          </button>
-          
-          <button 
-            className={`navbar-item ${currentTab === 'camera' ? 'active' : ''}`}
-            onClick={() => {
-              setCapturedPhoto(null);
-              setCurrentTab('camera');
-              setViewingEventId(null);
-              setExpandedMomentId(null);
-            }}
-            aria-label="Capture Moment"
-          >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path 
-                d="M23 19C23 20.1 22.1 21 21 21H3C1.9 21 1 20.1 1 19V8C1 6.9 1.9 6 3 6H7L9 3H15L17 6H21C22.1 6 23 6.9 23 8V19Z" 
-                stroke="white" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-                fill={currentTab === 'camera' ? 'white' : 'none'}
-              />
-              <circle 
-                cx="12" 
-                cy="13.5" 
-                r="4" 
-                stroke="white" 
-                strokeWidth="2"
-                fill={currentTab === 'camera' ? '#F17522' : 'none'}
-              />
-            </svg>
-          </button>
-          
-          <button 
-            className={`navbar-item ${currentTab === 'map' ? 'active' : ''}`}
-            onClick={() => {
-              setCurrentTab('map');
-              setViewingEventId(null);
-              setExpandedMomentId(null);
-            }}
-            aria-label="Event Map"
-          >
-            <svg width="28" height="26" viewBox="0 0 36 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path 
-                d="M1 4L12 0.5V26.5L1 30ZM12 0.5L24 4V30L12 26.5ZM24 4L35 0.5V26.5L24 30Z" 
-                stroke={currentTab === 'map' ? '#F17522' : 'white'}
-                strokeWidth="2.5" 
-                strokeLinejoin="round"
-                fill={currentTab === 'map' ? 'white' : 'none'}
-              />
-            </svg>
-          </button>
-        </nav>
+        {currentTab !== 'camera' && (
+          <nav className="navbar-floating-capsule">
+            <button 
+              className={`navbar-item ${currentTab === 'feed' ? 'active' : ''}`}
+              onClick={() => {
+                setCurrentTab('feed');
+                setViewingEventId(null);
+                setExpandedMomentId(null);
+              }}
+              aria-label="Home"
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path 
+                  d="M9 22V15C9 13.3431 10.3431 12 12 12C13.6569 12 15 13.3431 15 15V22H21V9.5L12 3L3 9.5V22Z" 
+                  stroke="white" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  fill={currentTab === 'feed' ? 'white' : 'none'}
+                />
+              </svg>
+            </button>
+            
+            <button 
+              className={`navbar-item ${currentTab === 'camera' ? 'active' : ''}`}
+              onClick={() => {
+                setCapturedPhoto(null);
+                setCurrentTab('camera');
+                setViewingEventId(null);
+                setExpandedMomentId(null);
+              }}
+              aria-label="Capture Moment"
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path 
+                  d="M23 19C23 20.1 22.1 21 21 21H3C1.9 21 1 20.1 1 19V8C1 6.9 1.9 6 3 6H7L9 3H15L17 6H21C22.1 6 23 6.9 23 8V19Z" 
+                  stroke="white" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  fill={currentTab === 'camera' ? 'white' : 'none'}
+                />
+                <circle 
+                  cx="12" 
+                  cy="13.5" 
+                  r="4" 
+                  stroke="white" 
+                  strokeWidth="2"
+                  fill={currentTab === 'camera' ? '#F17522' : 'none'}
+                />
+              </svg>
+            </button>
+            
+            <button 
+              className={`navbar-item ${currentTab === 'map' ? 'active' : ''}`}
+              onClick={() => {
+                setCurrentTab('map');
+                setViewingEventId(null);
+                setExpandedMomentId(null);
+              }}
+              aria-label="Event Map"
+            >
+              <svg width="28" height="26" viewBox="0 0 36 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path 
+                  d="M1 4L12 0.5V26.5L1 30ZM12 0.5L24 4V30L12 26.5ZM24 4L35 0.5V26.5L24 30Z" 
+                  stroke={currentTab === 'map' ? '#F17522' : 'white'}
+                  strokeWidth="2.5" 
+                  strokeLinejoin="round"
+                  fill={currentTab === 'map' ? 'white' : 'none'}
+                />
+              </svg>
+            </button>
+          </nav>
+        )}
 
         {/* --- STORY PLAYER OVERLAY (Instagram-style) --- */}
         {activeStoryEventId && activeStoryEvent && (
