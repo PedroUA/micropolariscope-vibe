@@ -237,7 +237,7 @@ body {
 
 /* Eventos Horizontal Scroll Container */
 .eventos-section {
-  padding: 16px 0 12px 0;
+  padding: 16px 0 4px 0;
   background-color: #ffffff;
   border-bottom: 1px solid var(--border-color);
 }
@@ -253,7 +253,7 @@ body {
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding: 0 16px;
+  padding: 8px 16px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
