@@ -2,12 +2,47 @@ import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import './App.css';
 
+const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+};
+
 // Pre-defined image options for event creators to select from
 const STOCK_IMAGES = [
   { url: '/assets/hardbar_photo.png', name: 'Concerto' },
   { url: '/assets/aee_photo.png', name: 'Cicloturismo' },
   { url: '/assets/tricot_thumb.png', name: 'Tricot' },
 ];
+
+const getOrganizerRole = (organizerName, currentUser) => {
+  if (!organizerName) return 'Pessoal';
+  if (currentUser && organizerName === currentUser.name) {
+    return currentUser.accountType === 'Organização' ? 'Organização' : 'Pessoal';
+  }
+  const nameLower = organizerName.toLowerCase();
+  if (
+    nameLower.includes('hardbar') || 
+    nameLower.includes('hard bar') || 
+    nameLower.includes('esgueira') || 
+    nameLower.includes('aee') || 
+    nameLower.includes('oficina') || 
+    nameLower.includes('doce') || 
+    nameLower.includes('surf') || 
+    nameLower.includes('jazz') || 
+    nameLower.includes('leme') || 
+    nameLower.includes('tricot')
+  ) {
+    return 'Organização';
+  }
+  return 'Pessoal';
+};
 
 export default function App() {
   // --- STATE ---
@@ -28,7 +63,7 @@ export default function App() {
       organizerLabel: 'HardBar Organização',
       organizerLogo: '/assets/hardbar_avatar.png',
       banner: '/assets/hardbar_photo.png',
-      badgeColor: 'rgba(0,0,0,0.75)'
+      badgeColor: '#f17522'
     },
     {
       id: 'event-quiz',
@@ -37,7 +72,7 @@ export default function App() {
       image: '/assets/quiz_photo.png',
       logo: '/assets/hardbar_avatar.png',
       live: false,
-      description: 'Diverte-te com a nossa noite de Open Mic organizada pela Aveiro Cult, Associação de Artistas de Aveiro!',
+      description: 'Diverte-te com a nossa noite de Quiz super divertida! Junta a tua equipa, testa a tua cultura geral e ganha prémios fantásticos.',
       detailImage: '/assets/quiz_photo.png',
       lat: 40.6405,
       lng: -8.6445,
@@ -399,7 +434,7 @@ export default function App() {
 
   // User Profile State
   const [viewingUser, setViewingUser] = useState(null);
-  const [userProfileTab, setUserProfileTab] = useState('events'); // 'events' | 'moments'
+  const [userProfileTab, setUserProfileTab] = useState('contributos'); // 'contributos' | 'guardados'
 
   // Authentication States
   const [currentUser, setCurrentUser] = useState(null); // { name: string, avatar: string, email: string }
@@ -414,32 +449,73 @@ export default function App() {
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [registerAccountType, setRegisterAccountType] = useState('Pessoal'); // 'Pessoal' | 'Organização'
   const [registerError, setRegisterError] = useState('');
   const [registerAvatar, setRegisterAvatar] = useState('/assets/profile.svg');
 
+  // Preload key images in the background on mount
+  useEffect(() => {
+    const imagesToPreload = [
+      '/assets/logo.svg',
+      '/assets/profile.svg',
+      '/assets/plus.svg',
+      '/assets/map.svg',
+      '/assets/camera.svg',
+      '/assets/nav-camera.svg',
+      '/assets/nav-map.svg',
+      '/assets/nav-profile.svg',
+      '/assets/hardbar_thumb.png',
+      '/assets/hardbar_avatar.png',
+      '/assets/hardbar_photo.png',
+      '/assets/aee_avatar.png',
+      '/assets/aee_photo.png',
+      '/assets/cicloturismo_thumb.png',
+      '/assets/quiz_photo.png',
+      '/assets/tricot_thumb.png',
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80'
+    ];
+    imagesToPreload.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   const openUserProfile = (userName, avatar) => {
-    let role = 'Membro';
+    let role = 'Pessoal';
     let bio = 'Amante de Aveiro, partilho momentos e vibes!';
     let banner = 'https://images.unsplash.com/photo-1486591978090-58e619d37fe7?w=600&auto=format&fit=crop&q=80';
 
-    if (userName.toLowerCase().includes('hardbar') || userName.toLowerCase().includes('hard bar')) {
-      role = 'Instituição';
+    if (currentUser && userName === currentUser.name) {
+      if (currentUser.accountType === 'Organização') {
+        role = 'Organização';
+        bio = 'Organização oficial parceira do Polariscope.';
+      } else {
+        role = 'Pessoal';
+      }
+    } else if (userName.toLowerCase().includes('hardbar') || userName.toLowerCase().includes('hard bar')) {
+      role = 'Organização';
       bio = 'Cozinha com amor, ingredientes frescos e momentos felizes.';
       banner = '/assets/hardbar_photo.png';
     } else if (userName.toLowerCase().includes('esgueira') || userName.toLowerCase().includes('aee')) {
-      role = 'Escola';
+      role = 'Organização';
       bio = 'Comunidade escolar unida pelo desporto e aprendizagem.';
       banner = '/assets/aee_photo.png';
     } else if (userName.toLowerCase().includes('tricot')) {
-      role = 'Clube';
+      role = 'Organização';
       bio = 'Ponto por ponto, partilhamos histórias e novelos.';
       banner = '/assets/tricot_thumb.png';
     } else if (userName.toLowerCase().includes('oficina') || userName.toLowerCase().includes('doce')) {
-      role = 'Empresa';
+      role = 'Organização';
       bio = 'A arte tradicional dos Ovos Moles de Aveiro.';
       banner = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80';
     } else if (userName.toLowerCase().includes('surf')) {
-      role = 'Clube';
+      role = 'Organização';
       bio = 'A nossa paixão é o mar e as melhores ondas.';
       banner = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80';
     }
@@ -451,7 +527,7 @@ export default function App() {
       bio,
       banner
     });
-    setUserProfileTab('events');
+    setUserProfileTab('contributos');
     setViewingEventId(null);
   };
 
@@ -465,6 +541,7 @@ export default function App() {
   const [isEventDropdownOpen, setIsEventDropdownOpen] = useState(false);
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState('');
+  const [locationSearchQuery, setLocationSearchQuery] = useState('');
   const [postTitle, setPostTitle] = useState('');
   const [postTag1, setPostTag1] = useState('');
   const [postTag2, setPostTag2] = useState('');
@@ -473,6 +550,15 @@ export default function App() {
   const [isBottomSheetCollapsed, setIsBottomSheetCollapsed] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [drafts, setDrafts] = useState([]);
+  const [savedEvents, setSavedEvents] = useState([]);
+  const [savedMoments, setSavedMoments] = useState([]);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [editProfileName, setEditProfileName] = useState('');
+  const [editProfileBio, setEditProfileBio] = useState('');
+  const [editProfileRole, setEditProfileRole] = useState('Pessoal');
+  const profileBannerInputRef = useRef(null);
 
   // UI animations
   const [animateHeartMomentId, setAnimateHeartMomentId] = useState(null);
@@ -481,6 +567,7 @@ export default function App() {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
+  const radiusCircleRef = useRef(null);
 
   // Video Ref
   const videoRef = useRef(null);
@@ -503,6 +590,8 @@ export default function App() {
   const [polariscopeVisible, setPolariscopeVisible] = useState(true);
   const [mapStyle, setMapStyle] = useState('light');
   const [toastMessage, setToastMessage] = useState(null);
+  const [captureRadius, setCaptureRadius] = useState(25);
+  const [isRadiusModalOpen, setIsRadiusModalOpen] = useState(false);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -608,6 +697,21 @@ export default function App() {
         .addTo(map)
         .bindPopup('Minha Localização');
 
+      // Add visual capture radius circle centered at USER_LOCATION
+      const radiusCircle = L.circle(USER_LOCATION, {
+        color: '#f17522',
+        fillColor: '#f17522',
+        fillOpacity: 0.12,
+        weight: 1.5,
+        radius: captureRadius * 1000 // Convert km to meters
+      });
+      
+      if (polariscopeVisible) {
+        radiusCircle.addTo(map);
+      }
+      
+      radiusCircleRef.current = radiusCircle;
+
       // Force size recalculation to fix grey rendering bugs
       [50, 150, 400, 1000].forEach(delay => {
         setTimeout(() => {
@@ -692,9 +796,28 @@ export default function App() {
       if (currentTab !== 'map' && mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
+        radiusCircleRef.current = null;
       }
     };
   }, [currentTab, events, mapSearchQuery]);
+
+  // Update capture radius circle dynamically
+  useEffect(() => {
+    if (mapInstanceRef.current && radiusCircleRef.current) {
+      const circle = radiusCircleRef.current;
+      circle.setRadius(captureRadius * 1000);
+      
+      if (polariscopeVisible) {
+        if (!mapInstanceRef.current.hasLayer(circle)) {
+          circle.addTo(mapInstanceRef.current);
+        }
+      } else {
+        if (mapInstanceRef.current.hasLayer(circle)) {
+          circle.remove();
+        }
+      }
+    }
+  }, [captureRadius, polariscopeVisible]);
 
   // --- MAP STYLE UPDATES ---
   const tileLayerRef = useRef(null);
@@ -834,20 +957,20 @@ export default function App() {
 
   // Save Post as Draft
   const handleSaveDraft = () => {
-    if (!newPostEventId) {
-      alert('Por favor, seleciona um evento antes de guardar o rascunho.');
+    if (!capturedPhoto) {
+      alert('Tira uma foto antes de guardar o rascunho.');
       return;
     }
 
-    const selectedEvent = events.find(ev => ev.id === newPostEventId) || events[0];
+    const selectedEvent = events.find(ev => ev.id === newPostEventId);
 
     const newDraft = {
       id: `draft-${Date.now()}`,
-      eventId: selectedEvent.id,
-      eventTitle: selectedEvent.title,
+      eventId: selectedEvent ? selectedEvent.id : '',
+      eventTitle: selectedEvent ? selectedEvent.title : 'Sem Evento',
       photo: capturedPhoto,
       title: postTitle || 'Rascunho sem título',
-      location: newPostLocation,
+      location: newPostLocation || '',
       tags: [postTag1, postTag2, postTag3].filter(Boolean),
       description: postDescription,
       time: new Date().toLocaleTimeString(),
@@ -863,6 +986,10 @@ export default function App() {
     setPostTag2('');
     setPostTag3('');
     setPostDescription('');
+    setNewPostEventId('');
+    setNewPostLocation('');
+    setEventSearchQuery('');
+    setLocationSearchQuery('');
     setIsBottomSheetCollapsed(false);
     setCurrentTab('feed');
   };
@@ -873,11 +1000,15 @@ export default function App() {
     if (!capturedPhoto) return;
 
     if (!newPostEventId) {
-      alert('Associação a um Evento é obrigatória!');
+      alert('Por favor, seleciona um evento antes de publicar.');
+      return;
+    }
+    if (!newPostLocation || !newPostLocation.trim()) {
+      alert('Por favor, define uma localização antes de publicar.');
       return;
     }
     if (!postTitle.trim()) {
-      alert('O Título do momento é obrigatório!');
+      alert('Por favor, escreve um título antes de publicar.');
       return;
     }
 
@@ -909,6 +1040,10 @@ export default function App() {
     setPostTag2('');
     setPostTag3('');
     setPostDescription('');
+    setNewPostEventId('');
+    setNewPostLocation('');
+    setEventSearchQuery('');
+    setLocationSearchQuery('');
     setIsBottomSheetCollapsed(false);
     setCurrentTab('feed');
   };
@@ -1033,22 +1168,51 @@ export default function App() {
     setLoginError('');
     showToast(`Bem-vindo, ${userName}!`);
   };
+  const handleOpenRegister = () => {
+    setRegisterName('');
+    setRegisterEmail('');
+    setRegisterPassword('');
+    setRegisterConfirmPassword('');
+    setRegisterAccountType('');
+    setRegisterError('');
+    setLoginScreen('register');
+  };
+
+  const handleOpenLogin = () => {
+    setLoginEmail('');
+    setLoginPassword('');
+    setLoginError('');
+    setLoginScreen('login');
+  };
 
   const handleRegister = (e) => {
     e.preventDefault();
-    if (!registerName.trim() || !registerEmail.trim() || !registerPassword.trim()) {
+    if (!registerName.trim() || !registerEmail.trim() || !registerPassword.trim() || !registerConfirmPassword.trim()) {
       setRegisterError('Por favor preencha todos os campos.');
+      return;
+    }
+
+    if (registerPassword.length < 8) {
+      setRegisterError('Deve ter no minimo 8 caracteres.');
+      return;
+    }
+
+    if (registerPassword !== registerConfirmPassword) {
+      setRegisterError('As palavras-passe não coincidem.');
       return;
     }
 
     setCurrentUser({
       name: registerName,
       avatar: registerAvatar,
-      email: registerEmail
+      email: registerEmail,
+      accountType: registerAccountType
     });
     setRegisterName('');
     setRegisterEmail('');
     setRegisterPassword('');
+    setRegisterConfirmPassword('');
+    setRegisterAccountType('Pessoal');
     setRegisterAvatar('/assets/profile.svg');
     setRegisterError('');
     showToast(`Conta criada! Bem-vindo, ${registerName}!`);
@@ -1075,6 +1239,130 @@ export default function App() {
     }
   };
 
+  const handleProfileBannerChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        if (currentUser) {
+          setCurrentUser(prev => ({ ...prev, banner: dataUrl }));
+          if (viewingUser) {
+            setViewingUser(prev => ({ ...prev, banner: dataUrl }));
+          }
+          showToast('Banner de perfil atualizado!');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const toggleSaveEvent = (eventId) => {
+    setSavedEvents(prev => {
+      if (prev.includes(eventId)) {
+        showToast('Evento removido dos guardados');
+        return prev.filter(id => id !== eventId);
+      } else {
+        showToast('Evento guardado com sucesso!');
+        return [...prev, eventId];
+      }
+    });
+  };
+
+  const toggleSaveMoment = (momentId) => {
+    setSavedMoments(prev => {
+      if (prev.includes(momentId)) {
+        showToast('Momento removido dos guardados');
+        return prev.filter(id => id !== momentId);
+      } else {
+        showToast('Momento guardado com sucesso!');
+        return [...prev, momentId];
+      }
+    });
+  };
+
+  const handleSaveProfile = (updatedName, updatedBio, updatedRole) => {
+    if (!updatedName.trim()) {
+      showToast('O nome não pode estar vazio.');
+      return;
+    }
+
+    const updatedUser = {
+      ...currentUser,
+      name: updatedName,
+      bio: updatedBio,
+      accountType: updatedRole
+    };
+    setCurrentUser(updatedUser);
+
+    setViewingUser(prev => ({
+      ...prev,
+      name: updatedName,
+      bio: updatedBio,
+      role: updatedRole
+    }));
+
+    // Update moments created by this user
+    setMoments(prevMoments => prevMoments.map(m => {
+      const authorClean = m.authorName.toLowerCase().replace(/\s+/g, '');
+      const userClean = currentUser.name.toLowerCase().replace(/\s+/g, '');
+      if (authorClean === userClean || (currentUser.name === 'Visitante' && m.authorName === 'Eu')) {
+        return {
+          ...m,
+          authorName: updatedName,
+          authorAvatar: currentUser.avatar
+        };
+      }
+      return m;
+    }));
+
+    // Update events created by this user
+    setEvents(prevEvents => prevEvents.map(evt => {
+      const orgClean = evt.organizer.toLowerCase().replace(/\s+/g, '');
+      const userClean = currentUser.name.toLowerCase().replace(/\s+/g, '');
+      if (orgClean === userClean || (currentUser.name === 'Visitante' && evt.organizer === 'Eu')) {
+        return {
+          ...evt,
+          organizer: updatedName,
+          organizerLabel: updatedName,
+          organizerLogo: currentUser.avatar
+        };
+      }
+      return evt;
+    }));
+
+    setIsEditingProfile(false);
+    showToast('Perfil atualizado com sucesso!');
+  };
+
+  const startEditingProfile = () => {
+    setEditProfileName(viewingUser ? viewingUser.name : (currentUser ? currentUser.name : ''));
+    setEditProfileBio(viewingUser ? viewingUser.bio : (currentUser ? currentUser.bio || '' : ''));
+    setEditProfileRole(viewingUser ? (viewingUser.role === 'Membro' || viewingUser.role === 'Pessoal' ? 'Pessoal' : 'Organização') : (currentUser ? currentUser.accountType || 'Pessoal' : 'Pessoal'));
+    setIsEditingProfile(true);
+  };
+
+  const loadDraftToCamera = (draft) => {
+    setCapturedPhoto(draft.photo);
+    setPostTitle(draft.title === 'Rascunho sem título' ? '' : draft.title);
+    setPostTag1(draft.tags[0] || '');
+    setPostTag2(draft.tags[1] || '');
+    setPostTag3(draft.tags[2] || '');
+    setPostDescription(draft.description || '');
+    setNewPostEventId(draft.eventId || '');
+    setNewPostLocation(draft.location || '');
+    setCurrentTab('camera');
+    setViewingUser(null);
+    showToast('Rascunho carregado na câmara!');
+  };
+
+  const deleteDraft = (draftId) => {
+    if (window.confirm('Tem a certeza que quer eliminar este rascunho?')) {
+      setDrafts(prev => prev.filter(d => d.id !== draftId));
+      showToast('Rascunho eliminado.');
+    }
+  };
+
   const handleGuestLogin = () => {
     setCurrentUser({
       name: 'Visitante',
@@ -1090,6 +1378,141 @@ export default function App() {
     setLoginScreen('welcome');
     showToast('Sessão terminada.');
   };
+
+  // --- BOTTOM SHEET DRAG GESTURE ---
+  const sheetRef = useRef(null);
+  const dragStartYRef = useRef(0);
+  const isDraggingSheetRef = useRef(false);
+
+  const handleSheetDragStart = (e) => {
+    dragStartYRef.current = e.clientY;
+    isDraggingSheetRef.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = 'none';
+    }
+  };
+
+  const handleSheetDragMove = (e) => {
+    if (!isDraggingSheetRef.current) return;
+    const diffY = e.clientY - dragStartYRef.current;
+    if (diffY > 0 && sheetRef.current) {
+      sheetRef.current.style.transform = `translateY(${diffY}px)`;
+    }
+  };
+
+  const handleSheetDragEnd = (e) => {
+    if (!isDraggingSheetRef.current) return;
+    isDraggingSheetRef.current = false;
+    const diffY = e.clientY - dragStartYRef.current;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+
+    if (sheetRef.current) {
+      if (diffY > 100) { // Dragged down more than 100px: collapse sheet
+        sheetRef.current.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+        sheetRef.current.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+          setIsBottomSheetCollapsed(true);
+          if (sheetRef.current) {
+            sheetRef.current.style.transform = '';
+            sheetRef.current.style.transition = '';
+          }
+        }, 250);
+      } else { // Snap back
+        sheetRef.current.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+        sheetRef.current.style.transform = 'translateY(0)';
+        setTimeout(() => {
+          if (sheetRef.current) {
+            sheetRef.current.style.transition = '';
+          }
+        }, 300);
+      }
+    }
+  };
+
+  // Event sheet drag gesture
+  const eventSheetRef = useRef(null);
+  const dragStartEventYRef = useRef(0);
+  const isDraggingEventSheetRef = useRef(false);
+
+  const handleEventSheetDragStart = (e) => {
+    dragStartEventYRef.current = e.clientY;
+    isDraggingEventSheetRef.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    if (eventSheetRef.current) {
+      eventSheetRef.current.style.transition = 'none';
+    }
+  };
+
+  const handleEventSheetDragMove = (e) => {
+    if (!isDraggingEventSheetRef.current) return;
+    const diffY = e.clientY - dragStartEventYRef.current;
+    if (diffY > 0 && eventSheetRef.current) {
+      eventSheetRef.current.style.transform = `translateY(${diffY}px)`;
+    }
+  };
+
+  const handleEventSheetDragEnd = (e) => {
+    if (!isDraggingEventSheetRef.current) return;
+    isDraggingEventSheetRef.current = false;
+    const diffY = e.clientY - dragStartEventYRef.current;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+
+    if (eventSheetRef.current) {
+      if (diffY > 100) { // Dragged down more than 100px: collapse event sheet
+        eventSheetRef.current.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+        eventSheetRef.current.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+          setIsCreatingEvent(false);
+          if (eventSheetRef.current) {
+            eventSheetRef.current.style.transform = '';
+            eventSheetRef.current.style.transition = '';
+          }
+        }, 250);
+      } else { // Snap back
+        eventSheetRef.current.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+        eventSheetRef.current.style.transform = 'translateY(0)';
+        setTimeout(() => {
+          if (eventSheetRef.current) {
+            eventSheetRef.current.style.transition = '';
+          }
+        }, 300);
+      }
+    }
+  };
+
+  const closeMomentSheetWithAnimation = () => {
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      sheetRef.current.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        setIsBottomSheetCollapsed(true);
+        if (sheetRef.current) {
+          sheetRef.current.style.transform = '';
+          sheetRef.current.style.transition = '';
+        }
+      }, 250);
+    } else {
+      setIsBottomSheetCollapsed(true);
+    }
+  };
+
+  const closeEventSheetWithAnimation = () => {
+    if (eventSheetRef.current) {
+      eventSheetRef.current.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      eventSheetRef.current.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        setIsCreatingEvent(false);
+        if (eventSheetRef.current) {
+          eventSheetRef.current.style.transform = '';
+          eventSheetRef.current.style.transition = '';
+        }
+      }, 250);
+    } else {
+      setIsCreatingEvent(false);
+    }
+  };
+
 
   // --- FORM ACTIONS ---
   const handleCreateEvent = (e) => {
@@ -1120,6 +1543,12 @@ export default function App() {
     };
 
     setEvents([...events, newEvt]);
+
+    // Auto-select event if created from Camera tab
+    if (currentTab === 'camera') {
+      setNewPostEventId(newEvt.id);
+      setNewPostLocation(newEvt.location);
+    }
 
     // Reset Form
     setNewEventTitle('');
@@ -1202,13 +1631,7 @@ export default function App() {
   const activeStoryEvent = events.find(e => e.id === activeStoryEventId);
   const activeCommentsMoment = moments.find(m => m.id === activeCommentsMomentId);
 
-  // Default event selection in Camera tab
-  useEffect(() => {
-    if (events.length > 0 && !newPostEventId) {
-      setNewPostEventId(events[0].id);
-      setNewPostLocation('HardBar, Aveiro');
-    }
-  }, [events, newPostEventId]);
+  // Default event selection in Camera tab - kept unselected as both are mandatory
 
   // Desktop Drag-to-Scroll vertical utility for feed and details
   useEffect(() => {
@@ -1334,18 +1757,23 @@ export default function App() {
           accept="image/*" 
           onChange={handleProfileAvatarChange} 
         />
+        <input 
+          type="file" 
+          ref={profileBannerInputRef} 
+          style={{ display: 'none' }} 
+          accept="image/*" 
+          onChange={handleProfileBannerChange} 
+        />
         {!currentUser ? (
           <div className="auth-flow-container">
             {loginScreen === 'welcome' && (
               <div className="welcome-screen">
                 <header className="auth-header">
-                  <div className="auth-header-logo-container">
-                    <svg className="auth-logo-svg" width="24" height="24" viewBox="0 0 38 37" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M31.5803 30.4242L36.9553 13.779M28.1249 30.0371L34.2678 11.4565M31.5803 32.7468H12.7677M13.9194 35.8436H30.8124M21.5981 30.0371L24.6695 21.1339M25.0535 30.0371L27.3571 23.0694M21.5981 15.3274L28.8928 20.7468M23.9017 13.0048L29.6606 17.65M18.5266 0.617751L31.9642 11.0694M15.8391 2.94033L30.8124 14.1661M13.9194 4.87582L0.473583 15.096M16.607 6.8113L1.63365 18.4242M19.2945 9.13388L13.5355 13.3919M21.982 11.0694L14.6873 16.4887M11.2319 14.5532L14.3034 23.4565M8.54441 16.8758L10.848 23.4565M10.848 26.1661H20.0624M11.9998 29.65H19.2945M5.85689 18.4242L11.6159 36.6178M3.16937 20.7468L8.16048 36.6178" stroke="currentColor" strokeWidth="2.5" strokeMiterlimit="4"/>
-                    </svg>
-                    <h1 className="auth-header-logo-text">
+                  <div className="brand-logo-container">
+                    <img src="/assets/logo.svg" className="brand-logo-icon" alt="microPolariscope Logo" />
+                    <h1 className="brand-logo-text">
                       <span className="light">micro</span>
-                      <span className="bold">polariscope</span>
+                      <span className="regular">polariscope</span>
                     </h1>
                   </div>
                 </header>
@@ -1354,19 +1782,29 @@ export default function App() {
                   <h2 className="welcome-title">Olá!</h2>
                   
                   <div className="welcome-logo-large">
-                    <svg className="auth-logo-svg" width="204" height="202" viewBox="0 0 38 37" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M31.5803 30.4242L36.9553 13.779M28.1249 30.0371L34.2678 11.4565M31.5803 32.7468H12.7677M13.9194 35.8436H30.8124M21.5981 30.0371L24.6695 21.1339M25.0535 30.0371L27.3571 23.0694M21.5981 15.3274L28.8928 20.7468M23.9017 13.0048L29.6606 17.65M18.5266 0.617751L31.9642 11.0694M15.8391 2.94033L30.8124 14.1661M13.9194 4.87582L0.473583 15.096M16.607 6.8113L1.63365 18.4242M19.2945 9.13388L13.5355 13.3919M21.982 11.0694L14.6873 16.4887M11.2319 14.5532L14.3034 23.4565M8.54441 16.8758L10.848 23.4565M10.848 26.1661H20.0624M11.9998 29.65H19.2945M5.85689 18.4242L11.6159 36.6178M3.16937 20.7468L8.16048 36.6178" stroke="currentColor" strokeWidth="2.5" strokeMiterlimit="4"/>
+                    <svg width="213" height="208" viewBox="0 0 213 208" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069" stroke="url(#paint0_linear_681_693)" strokeWidth="10.3226" strokeMiterlimit="3.99393"/>
+                      <defs>
+                        <linearGradient id="paint0_linear_681_693" x1="106.227" y1="4.06885" x2="106.227" y2="208.241" gradientUnits="userSpaceOnUse">
+                          <stop stopColor="#F77E1A"/>
+                          <stop offset="1" stopColor="#F7AD1A"/>
+                        </linearGradient>
+                      </defs>
                     </svg>
                   </div>
 
-                  <p className="welcome-subtitle">Pronto(a) para partilhar os teus melhores Momentos?</p>
+                  <p className="welcome-subtitle">
+                    Pronto(a) para partilhar<br />
+                    os teus melhores<br />
+                    Momentos?
+                  </p>
                 </div>
 
                 <div className="welcome-actions">
-                  <button className="auth-btn auth-btn-secondary" onClick={() => setLoginScreen('register')}>
+                  <button className="auth-btn auth-btn-secondary" onClick={handleOpenRegister}>
                     Criar conta
                   </button>
-                  <button className="auth-btn auth-btn-primary" onClick={() => setLoginScreen('login')}>
+                  <button className="auth-btn auth-btn-primary" onClick={handleOpenLogin}>
                     Iniciar sessão
                   </button>
                   <div className="auth-guest-link">
@@ -1377,142 +1815,183 @@ export default function App() {
             )}
 
             {loginScreen === 'login' && (
-              <div className="auth-form-screen">
+              <div className="auth-form-screen" style={{ position: 'relative' }}>
                 <header className="auth-header">
-                  <button className="auth-back-btn" onClick={() => setLoginScreen('welcome')} aria-label="Voltar">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                  </button>
-                  <div className="auth-header-logo-container">
-                    <svg className="auth-logo-svg" width="24" height="24" viewBox="0 0 38 37" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M31.5803 30.4242L36.9553 13.779M28.1249 30.0371L34.2678 11.4565M31.5803 32.7468H12.7677M13.9194 35.8436H30.8124M21.5981 30.0371L24.6695 21.1339M25.0535 30.0371L27.3571 23.0694M21.5981 15.3274L28.8928 20.7468M23.9017 13.0048L29.6606 17.65M18.5266 0.617751L31.9642 11.0694M15.8391 2.94033L30.8124 14.1661M13.9194 4.87582L0.473583 15.096M16.607 6.8113L1.63365 18.4242M19.2945 9.13388L13.5355 13.3919M21.982 11.0694L14.6873 16.4887M11.2319 14.5532L14.3034 23.4565M8.54441 16.8758L10.848 23.4565M10.848 26.1661H20.0624M11.9998 29.65H19.2945M5.85689 18.4242L11.6159 36.6178M3.16937 20.7468L8.16048 36.6178" stroke="currentColor" strokeWidth="2.5" strokeMiterlimit="4"/>
-                    </svg>
-                    <h1 className="auth-header-logo-text">
+                  <div className="brand-logo-container">
+                    <img src="/assets/logo.svg" className="brand-logo-icon" alt="microPolariscope Logo" />
+                    <h1 className="brand-logo-text">
                       <span className="light">micro</span>
-                      <span className="bold">polariscope</span>
+                      <span className="regular">polariscope</span>
                     </h1>
                   </div>
                 </header>
 
-                <form className="auth-form" onSubmit={handleLogin}>
-                  <h3 className="auth-form-title">Iniciar sessão</h3>
+                <button className="auth-back-circle-btn" onClick={() => setLoginScreen('welcome')} aria-label="Voltar">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="#ffffff" strokeWidth="4.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+
+                <form className="auth-form" onSubmit={handleLogin} style={{ padding: '24px 30px' }}>
+                  <h3 className="register-title">Iniciar sessão</h3>
                   
                   {loginError && <div className="auth-error-msg">{loginError}</div>}
 
-                  <div className="auth-input-group">
+                  <div className="register-field-group">
+                    <label htmlFor="login-email" className="register-label">Email</label>
                     <input 
                       type="email" 
                       id="login-email"
-                      className="auth-input-field" 
-                      placeholder=" "
+                      className="register-input" 
+                      placeholder="Email"
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       required
                     />
-                    <label htmlFor="login-email" className="auth-input-label">E-mail</label>
                   </div>
 
-                  <div className="auth-input-group">
+                  <div className="register-field-group" style={{ marginBottom: '8px' }}>
+                    <label htmlFor="login-password" className="register-label">Palavra-passe</label>
                     <input 
                       type="password" 
                       id="login-password"
-                      className="auth-input-field" 
-                      placeholder=" "
+                      className="register-input" 
+                      placeholder="Palavra-passe"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       required
                     />
-                    <label htmlFor="login-password" className="auth-input-label">Palavra-passe</label>
+                    <span 
+                      className="login-forgot-password" 
+                      onClick={() => showToast("Recuperação de palavra-passe enviada!")}
+                    >
+                      Esqueceste-te da palavra-passe?
+                    </span>
                   </div>
 
-                  <button type="submit" className="auth-submit-btn">
-                    Entrar
+                  <button type="submit" className="register-submit-btn" style={{ marginTop: '24px' }}>
+                    Inicia sessão
                   </button>
+
+                  <div className="auth-guest-link" style={{ marginTop: '16px', textAlign: 'center' }}>
+                    ...ou entra como <span className="visitor-underlined" onClick={handleGuestLogin}>Visitante</span>
+                  </div>
                 </form>
               </div>
             )}
 
             {loginScreen === 'register' && (
-              <div className="auth-form-screen">
+              <div className="auth-form-screen" style={{ position: 'relative' }}>
                 <header className="auth-header">
-                  <button className="auth-back-btn" onClick={() => setLoginScreen('welcome')} aria-label="Voltar">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="15 18 9 12 15 6"></polyline>
-                    </svg>
-                  </button>
-                  <div className="auth-header-logo-container">
-                    <svg className="auth-logo-svg" width="24" height="24" viewBox="0 0 38 37" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M31.5803 30.4242L36.9553 13.779M28.1249 30.0371L34.2678 11.4565M31.5803 32.7468H12.7677M13.9194 35.8436H30.8124M21.5981 30.0371L24.6695 21.1339M25.0535 30.0371L27.3571 23.0694M21.5981 15.3274L28.8928 20.7468M23.9017 13.0048L29.6606 17.65M18.5266 0.617751L31.9642 11.0694M15.8391 2.94033L30.8124 14.1661M13.9194 4.87582L0.473583 15.096M16.607 6.8113L1.63365 18.4242M19.2945 9.13388L13.5355 13.3919M21.982 11.0694L14.6873 16.4887M11.2319 14.5532L14.3034 23.4565M8.54441 16.8758L10.848 23.4565M10.848 26.1661H20.0624M11.9998 29.65H19.2945M5.85689 18.4242L11.6159 36.6178M3.16937 20.7468L8.16048 36.6178" stroke="currentColor" strokeWidth="2.5" strokeMiterlimit="4"/>
-                    </svg>
-                    <h1 className="auth-header-logo-text">
+                  <div className="brand-logo-container">
+                    <img src="/assets/logo.svg" className="brand-logo-icon" alt="microPolariscope Logo" />
+                    <h1 className="brand-logo-text">
                       <span className="light">micro</span>
-                      <span className="bold">polariscope</span>
+                      <span className="regular">polariscope</span>
                     </h1>
                   </div>
                 </header>
 
-                <form className="auth-form" onSubmit={handleRegister}>
-                  <h3 className="auth-form-title">Criar conta</h3>
+                <button className="auth-back-circle-btn" onClick={() => setLoginScreen('welcome')} aria-label="Voltar">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="#ffffff" strokeWidth="4.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+
+                <form className="auth-form" onSubmit={handleRegister} style={{ padding: '24px 30px' }}>
+                  <h3 className="register-title">Criar conta</h3>
                   
                   {registerError && <div className="auth-error-msg">{registerError}</div>}
 
-                  {/* Profile Avatar Selection Card */}
-                  <div className="auth-avatar-selection-card" onClick={() => profileAvatarInputRef.current && profileAvatarInputRef.current.click()}>
-                    <div className="auth-avatar-selection-wrapper">
-                      <img src={registerAvatar} alt="Profile Avatar" className="auth-avatar-selection-img" />
-                      <div className="auth-avatar-selection-badge">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                          <circle cx="12" cy="13" r="4"/>
-                        </svg>
-                      </div>
-                    </div>
-                    <span className="auth-avatar-selection-label">Escolher foto de perfil</span>
-                  </div>
-
-                  <div className="auth-input-group">
+                  <div className="register-field-group">
+                    <label htmlFor="register-name" className="register-label">Nome</label>
                     <input 
                       type="text" 
                       id="register-name"
-                      className="auth-input-field" 
-                      placeholder=" "
+                      className="register-input" 
+                      placeholder="Nome"
                       value={registerName}
                       onChange={(e) => setRegisterName(e.target.value)}
                       required
                     />
-                    <label htmlFor="register-name" className="auth-input-label">Nome Completo</label>
                   </div>
 
-                  <div className="auth-input-group">
+                  <div className="register-field-group">
+                    <label htmlFor="register-email" className="register-label">Email</label>
                     <input 
                       type="email" 
                       id="register-email"
-                      className="auth-input-field" 
-                      placeholder=" "
+                      className="register-input" 
+                      placeholder="Email"
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       required
                     />
-                    <label htmlFor="register-email" className="auth-input-label">E-mail</label>
                   </div>
 
-                  <div className="auth-input-group">
+                  <div className="register-field-group">
+                    <label htmlFor="register-password" className="register-label">Palavra-passe</label>
                     <input 
                       type="password" 
                       id="register-password"
-                      className="auth-input-field" 
-                      placeholder=" "
+                      className="register-input" 
+                      placeholder="Palavra-passe"
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       required
                     />
-                    <label htmlFor="register-password" className="auth-input-label">Palavra-passe</label>
+                    <span className="register-field-hint">Deve ter no minimo 8 caracteres</span>
                   </div>
 
-                  <button type="submit" className="auth-submit-btn">
+                  <div className="register-field-group">
+                    <label htmlFor="register-confirm-password" className="register-label">Confirmar palavra-passe</label>
+                    <input 
+                      type="password" 
+                      id="register-confirm-password"
+                      className="register-input" 
+                      placeholder="Palavra-passe"
+                      value={registerConfirmPassword}
+                      onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="register-field-group">
+                    <span className="register-label">Tipo de conta</span>
+                    <div className="register-account-types">
+                      <div 
+                        className="register-checkbox-label"
+                        onClick={() => setRegisterAccountType('Organização')}
+                      >
+                        <div className={`register-checkbox-custom ${registerAccountType === 'Organização' ? 'checked' : ''}`}>
+                          <svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </div>
+                        <span>Organização</span>
+                      </div>
+
+                      <div 
+                        className="register-checkbox-label"
+                        onClick={() => setRegisterAccountType('Pessoal')}
+                      >
+                        <div className={`register-checkbox-custom ${registerAccountType === 'Pessoal' ? 'checked' : ''}`}>
+                          <svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </div>
+                        <span>Pessoal</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="submit" className="register-submit-btn">
                     Criar conta
                   </button>
+
+                  <div className="auth-guest-link" style={{ marginTop: '16px', textAlign: 'center' }}>
+                    ...ou entra como <span className="visitor-underlined" onClick={handleGuestLogin}>Visitante</span>
+                  </div>
                 </form>
               </div>
             )}
@@ -1539,7 +2018,7 @@ export default function App() {
               <img src="/assets/logo.svg" className="brand-logo-icon" alt="microPolariscope Logo" />
               <h1 className="brand-logo-text">
                 <span className="light">micro</span>
-                <span className="bold">polariscope</span>
+                <span className="regular">polariscope</span>
               </h1>
             </div>
             <button 
@@ -1572,6 +2051,40 @@ export default function App() {
                 </svg>
               </button>
 
+              {/* Top Banner Actions (Notifications and Settings) */}
+              {(() => {
+                const isOwnProfile = currentUser && (
+                  viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') ||
+                  (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')
+                );
+                if (!isOwnProfile) return null;
+                return (
+                  <div className="profile-banner-actions">
+                    <button 
+                      className="profile-action-btn notification-btn"
+                      onClick={() => setIsNotificationsOpen(true)}
+                      aria-label="Notificações"
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                      </svg>
+                      <span className="bell-badge"></span>
+                    </button>
+                    <button 
+                      className="profile-action-btn settings-btn"
+                      onClick={() => setIsSettingsOpen(true)}
+                      aria-label="Configurações"
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })()}
+
               {/* Banner Section */}
               <div className="event-detail-banner-container">
                 <div 
@@ -1581,26 +2094,23 @@ export default function App() {
                 
                 {/* Overlapping Avatar */}
                 <div 
-                  className={`event-detail-avatar-container ${currentUser && (viewingUser.name === currentUser.name || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')) ? 'editable-avatar' : ''}`}
+                  className={`event-detail-avatar-container ${currentUser && (viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')) ? 'editable-avatar' : ''}`}
                   onClick={(e) => {
-                    const isOwnProfile = currentUser && (viewingUser.name === currentUser.name || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu'));
+                    const isOwnProfile = currentUser && (viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu'));
                     if (isOwnProfile && e.target.closest('.avatar-edit-overlay')) {
                       if (profileAvatarInputRef.current) {
                         profileAvatarInputRef.current.click();
                       }
-                    } else {
-                      setUserProfileTab('moments');
-                      showToast('A abrir a galeria de momentos...');
                     }
                   }}
-                  title={currentUser && (viewingUser.name === currentUser.name || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')) ? "Clique na foto para ver a galeria ou no ícone para alterar" : "Ver galeria de momentos"}
+                  title={currentUser && (viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')) ? "Alterar foto de perfil" : "Foto de perfil"}
                 >
                   <img 
                     src={viewingUser.avatar} 
                     className="event-detail-avatar" 
                     alt={viewingUser.name} 
                   />
-                  {currentUser && (viewingUser.name === currentUser.name || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')) && (
+                  {currentUser && (viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')) && (
                     <div className="avatar-edit-overlay">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -1614,101 +2124,215 @@ export default function App() {
               {/* User Meta Info */}
               <div className="user-profile-meta">
                 <h2 className="user-profile-name">{viewingUser.name}</h2>
-                <span className="user-profile-role">{viewingUser.role}</span>
+                <span className="user-profile-role">
+                  {viewingUser.role === 'Membro' || viewingUser.role === 'Pessoal' ? 'Pessoal' : 'Organização'}
+                </span>
                 <p className="user-profile-bio">{viewingUser.bio}</p>
-                {currentUser && (viewingUser.name === currentUser.name || (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')) && (
-                  <button 
-                    className="user-profile-logout-capsule-btn" 
-                    onClick={handleLogout}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px', display: 'inline-block', verticalAlign: 'middle' }}>
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    Terminar Sessão
-                  </button>
-                )}
+                {(() => {
+                  const isOwnProfile = currentUser && (
+                    viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') ||
+                    (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')
+                  );
+                  if (isOwnProfile) {
+                    return (
+                      <button 
+                        className="profile-edit-btn" 
+                        onClick={startEditingProfile}
+                      >
+                        Editar perfil
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               {/* Tabs selector */}
-              <div className="user-profile-tabs-selector">
-                <button 
-                  className={`user-profile-tab-btn ${userProfileTab === 'events' ? 'active' : ''}`}
-                  onClick={() => setUserProfileTab('events')}
-                >
-                  Eventos
-                </button>
-                <button 
-                  className={`user-profile-tab-btn ${userProfileTab === 'moments' ? 'active' : ''}`}
-                  onClick={() => setUserProfileTab('moments')}
-                >
-                  Momentos
-                </button>
-              </div>
+              {(() => {
+                const isOwnProfile = currentUser && (
+                  viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') ||
+                  (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')
+                );
+                if (!isOwnProfile) return null;
+                return (
+                  <div className="user-profile-tabs-selector">
+                    <button 
+                      className={`user-profile-tab-btn ${userProfileTab === 'contributos' ? 'active' : 'inactive'}`}
+                      onClick={() => setUserProfileTab('contributos')}
+                    >
+                      Contributos
+                    </button>
+                    <button 
+                      className={`user-profile-tab-btn ${userProfileTab === 'guardados' ? 'active' : 'inactive'}`}
+                      onClick={() => setUserProfileTab('guardados')}
+                    >
+                      Guardados
+                    </button>
+                  </div>
+                );
+              })()}
 
               {/* Tab Content */}
               <div className="user-profile-tab-content">
-                {userProfileTab === 'events' ? (
-                  <div className="user-profile-events-list">
+                {userProfileTab === 'contributos' ? (
+                  <div className="profile-contributos-sections">
                     {(() => {
+                      const isOwnProfile = currentUser && (
+                        viewingUser.name.toLowerCase().replace(/\s+/g, '') === currentUser.name.toLowerCase().replace(/\s+/g, '') ||
+                        (currentUser.name === 'Visitante' && viewingUser.name === 'Eu')
+                      );
+                      
                       const userEvents = events.filter(e => {
                         const orgClean = e.organizer.toLowerCase().replace(/\s+/g, '');
                         const nameClean = viewingUser.name.toLowerCase().replace(/\s+/g, '');
                         return orgClean.includes(nameClean) || nameClean.includes(orgClean);
                       });
-                      if (userEvents.length > 0) {
-                        return userEvents.map(evt => (
-                          <div key={evt.id} className="user-profile-event-card" onClick={() => { setViewingEventId(evt.id); setViewingUser(null); }}>
-                            <img src={evt.image} className="user-profile-event-img" alt={evt.title} />
-                            
-                            <div 
-                              className="user-profile-event-title-badge"
-                              style={evt.badgeColor ? { backgroundColor: evt.badgeColor } : {}}
-                            >
-                              {evt.title}
-                            </div>
 
-                            <div className="user-profile-event-desc-overlay">
-                              <p className="user-profile-event-desc">{evt.description}</p>
-                            </div>
-                          </div>
-                        ));
-                      } else {
-                        return (
-                          <div className="user-profile-fallback">
-                            Não organizou nenhum evento ainda.
-                          </div>
-                        );
-                      }
-                    })()}
-                  </div>
-                ) : (
-                  <div className="user-profile-moments-list">
-                    {(() => {
                       const userMoments = moments.filter(m => {
                         const authorClean = m.authorName.toLowerCase().replace(/\s+/g, '');
                         const nameClean = viewingUser.name.toLowerCase().replace(/\s+/g, '');
                         return authorClean.includes(nameClean) || nameClean.includes(authorClean);
                       });
-                      if (userMoments.length > 0) {
-                        return userMoments.map(m => (
-                          <div key={m.id} className="user-profile-moment-card" onClick={() => setExpandedMomentId(m.id)}>
-                            <img src={m.photo} className="user-profile-moment-img" alt={m.title} />
-                            <div className="user-profile-moment-info">
-                              <span className="user-profile-moment-title">{m.title}</span>
-                              <span className="user-profile-moment-likes">❤️ {m.likes} Likes</span>
+
+                      return (
+                        <>
+                          {/* 1. Rascunhos (Own Profile only) */}
+                          {isOwnProfile && (
+                            <div className="profile-section" style={{ marginBottom: '24px' }}>
+                              <h3 className="profile-section-title">Rascunhos ({drafts.length})</h3>
+                              {drafts.length > 0 ? (
+                                <div className="profile-drafts-list" style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', width: '100%' }}>
+                                  {drafts.map(draft => (
+                                    <div key={draft.id} className="profile-draft-card" onClick={() => loadDraftToCamera(draft)} style={{ flex: '0 0 110px', position: 'relative', cursor: 'pointer', background: '#f8f9fa', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e9ecef' }}>
+                                      <img src={draft.photo} alt={draft.title} style={{ width: '100%', height: '110px', objectFit: 'cover' }} />
+                                      <div style={{ padding: '6px' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#333' }}>{draft.title}</div>
+                                        <div style={{ fontSize: '9px', color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{draft.eventTitle}</div>
+                                      </div>
+                                      <button 
+                                        type="button"
+                                        className="profile-draft-delete-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          deleteDraft(draft.id);
+                                        }}
+                                        style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#fff', cursor: 'pointer' }}
+                                        aria-label="Eliminar rascunho"
+                                      >
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="profile-section-fallback">Não tem rascunhos na câmara.</div>
+                              )}
                             </div>
+                          )}
+
+                          {/* 2. Momentos */}
+                          <div className="profile-section" style={{ marginBottom: '24px' }}>
+                            <h3 className="profile-section-title">
+                              {isOwnProfile ? `Momentos (${userMoments.length})` : 'Momentos Recentes'}
+                            </h3>
+                            {userMoments.length > 0 ? (
+                              <div className={`user-profile-moments-list ${!isOwnProfile ? 'compact' : ''}`}>
+                                {userMoments.map(m => (
+                                  <div key={m.id} className="user-profile-moment-card" onClick={() => setExpandedMomentId(m.id)}>
+                                    <img src={m.photo} className="user-profile-moment-img" alt={m.title} />
+                                    <div className="user-profile-moment-info">
+                                      <span className="user-profile-moment-title">{m.title}</span>
+                                      <span className="user-profile-moment-likes">❤️ {m.likes} Likes</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="profile-section-fallback">Não partilhou nenhum momento ainda.</div>
+                            )}
                           </div>
-                        ));
-                      } else {
-                        return (
-                          <div className="user-profile-fallback">
-                            Não partilhou nenhum momento ainda.
+
+                          {/* 3. Eventos */}
+                          <div className="profile-section">
+                            <h3 className="profile-section-title">Eventos ({userEvents.length})</h3>
+                            {userEvents.length > 0 ? (
+                              <div className="user-profile-events-list">
+                                {userEvents.map(evt => (
+                                  <div key={evt.id} className="user-profile-event-card" onClick={() => { setViewingEventId(evt.id); setViewingUser(null); }}>
+                                    <img src={evt.image} className="user-profile-event-img" alt={evt.title} />
+                                    <div className="user-profile-event-title-badge">
+                                      {evt.title}
+                                    </div>
+                                    <div className="user-profile-event-desc-overlay">
+                                      <p className="user-profile-event-desc">{evt.description}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="profile-section-fallback">Não organizou nenhum evento ainda.</div>
+                            )}
                           </div>
-                        );
-                      }
+                        </>
+                      );
                     })()}
+                  </div>
+                ) : (
+                  <div className="profile-guardados-sections">
+                    {/* 1. Momentos Guardados */}
+                    <div className="profile-section" style={{ marginBottom: '24px' }}>
+                      <h3 className="profile-section-title">Momentos Guardados</h3>
+                      {(() => {
+                        const savedMom = moments.filter(m => savedMoments.includes(m.id));
+                        if (savedMom.length > 0) {
+                          return (
+                            <div className="user-profile-moments-list">
+                              {savedMom.map(m => (
+                                <div key={m.id} className="user-profile-moment-card" onClick={() => setExpandedMomentId(m.id)}>
+                                  <img src={m.photo} className="user-profile-moment-img" alt={m.title} />
+                                  <div className="user-profile-moment-info">
+                                    <span className="user-profile-moment-title">{m.title}</span>
+                                    <span className="user-profile-moment-likes">❤️ {m.likes} Likes</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        } else {
+                          return <div className="profile-section-fallback">Não tem momentos guardados.</div>;
+                        }
+                      })()}
+                    </div>
+
+                    {/* 2. Eventos Guardados */}
+                    <div className="profile-section">
+                      <h3 className="profile-section-title">Eventos Guardados</h3>
+                      {(() => {
+                        const savedEvts = events.filter(evt => savedEvents.includes(evt.id));
+                        if (savedEvts.length > 0) {
+                          return (
+                            <div className="user-profile-events-list">
+                              {savedEvts.map(evt => (
+                                <div key={evt.id} className="user-profile-event-card" onClick={() => { setViewingEventId(evt.id); setViewingUser(null); }}>
+                                  <img src={evt.image} className="user-profile-event-img" alt={evt.title} />
+                                  <div className="user-profile-event-title-badge">
+                                    {evt.title}
+                                  </div>
+                                  <div className="user-profile-event-desc-overlay">
+                                    <p className="user-profile-event-desc">{evt.description}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        } else {
+                          return <div className="profile-section-fallback">Não tem eventos guardados.</div>;
+                        }
+                      })()}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1730,7 +2354,7 @@ export default function App() {
                     {/* Overlapping Avatar */}
                     <div className="event-detail-avatar-container">
                       <img 
-                        src={currentEvent.logo || '/assets/profile.svg'} 
+                        src={currentEvent.image || '/assets/profile.svg'} 
                         className="event-detail-avatar" 
                         alt={currentEvent.title} 
                       />
@@ -1739,10 +2363,26 @@ export default function App() {
 
                   {/* Info Content Section */}
                   <div className="event-detail-info">
-                    <h2 className="event-detail-title">{currentEvent.title}</h2>
+                    <div className="event-detail-title-row" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', position: 'relative' }}>
+                        <h2 className="event-detail-title" style={{ margin: 0, textAlign: 'center' }}>{currentEvent.title}</h2>
+                        {currentUser && (
+                          <button 
+                            className={`event-bookmark-btn ${savedEvents.includes(currentEvent.id) ? 'active' : ''}`}
+                            onClick={() => toggleSaveEvent(currentEvent.id)}
+                            aria-label="Guardar Evento"
+                            style={{ position: 'absolute', left: '100%', marginLeft: '8px', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
+                          >
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill={savedEvents.includes(currentEvent.id) ? "var(--primary)" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
                     <p className="event-detail-subtitle">{currentEvent.subtitle || currentEvent.description}</p>
                     
-                    {/* Date Row (Critical UX Fix) */}
+                    {/* Date Row (inicio e fim) */}
                     <div className="event-detail-date-row">
                       <svg className="icon-calendar" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -1753,7 +2393,7 @@ export default function App() {
                       <span>{currentEvent.date || 'Hoje, 20:00 - 23:00'}</span>
                     </div>
 
-                    {/* Organizer Badge (Critical UX Fix) */}
+                    {/* Creator Identification (Inline below Date) */}
                     <div 
                       className="event-detail-organizer-badge"
                       onClick={() => openUserProfile(currentEvent.organizer, currentEvent.logo)}
@@ -1765,25 +2405,29 @@ export default function App() {
                         alt={currentEvent.organizer} 
                       />
                       <div className="organizer-badge-info">
-                        <span className="organizer-badge-label">Organização</span>
-                        <span className="organizer-badge-name">{currentEvent.organizerLabel || `${currentEvent.organizer} Organização`}</span>
+                        <span className="organizer-badge-label">
+                          {getOrganizerRole(currentEvent.organizer, currentUser)}
+                        </span>
+                        <span className="organizer-badge-name">
+                          {currentEvent.organizerLabel || currentEvent.organizer}
+                        </span>
                       </div>
                     </div>
-
-                    {/* Action Button: Momentos capsule */}
-                    <button 
-                      className="event-detail-momentos-btn"
-                      onClick={() => {
-                        setActiveStoryEventId(currentEvent.id);
-                      }}
-                    >
-                      Momentos
-                    </button>
                   </div>
 
                   {/* Moments Grid */}
                   <div className="event-detail-moments-section">
-                    <h3 className="moments-grid-title">Fotografias do Evento</h3>
+                    {/* Centered Momentos Identifier/Button */}
+                    <div className="moments-grid-header-container">
+                      <button 
+                        className="event-detail-momentos-btn"
+                        onClick={() => {
+                          setActiveStoryEventId(currentEvent.id);
+                        }}
+                      >
+                        Momentos
+                      </button>
+                    </div>
                     <div className="event-detail-moments-grid">
                       {(() => {
                         const eventMoments = moments.filter(m => m.eventId === currentEvent.id);
@@ -1823,7 +2467,18 @@ export default function App() {
                 <>
                   {/* Eventos Horizontal Scroll Section */}
                   <section className="eventos-section">
-                    <h2 className="eventos-title">Eventos</h2>
+                    <h2 
+                      className="eventos-title" 
+                      onClick={() => setIsRadiusModalOpen(true)} 
+                      style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <span>Eventos</span>
+                      <span className="eventos-title-radius">{captureRadius}km</span>
+                      <svg className="eventos-title-edit-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                      </svg>
+                    </h2>
                     <div className="eventos-scroll-bar">
                       {/* Plus card - "Criar Evento" */}
                       <div className="event-story-item" onClick={() => setIsCreatingEvent(true)}>
@@ -1835,17 +2490,32 @@ export default function App() {
                         <span className="event-story-caption">Criar Evento</span>
                       </div>
 
-                      {/* Dynamic Event list */}
-                      {events.map(evt => (
-                        <div key={evt.id} className="event-story-item" onClick={() => setViewingEventId(evt.id)}>
-                          <div className={`event-card-frame ${evt.live ? 'live-event' : 'active-event'}`}>
-                            <div className="event-card-image-container">
-                              <img src={evt.image} alt={evt.title} />
+                      {/* Dynamic Event list filtered by distance */}
+                      {(() => {
+                        const filtered = events.filter(evt => {
+                          const dist = getDistanceKm(USER_LOCATION[0], USER_LOCATION[1], evt.lat, evt.lng);
+                          return dist <= captureRadius;
+                        });
+
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="no-events-in-radius-message">
+                              Sem eventos no raio de {captureRadius}km
                             </div>
+                          );
+                        }
+
+                        return filtered.map(evt => (
+                          <div key={evt.id} className="event-story-item" onClick={() => setViewingEventId(evt.id)}>
+                            <div className={`event-card-frame ${evt.live ? 'live-event' : 'active-event'}`}>
+                              <div className="event-card-image-container">
+                                <img src={evt.image} alt={evt.title} />
+                              </div>
+                            </div>
+                            <span className="event-story-caption">{evt.title}</span>
                           </div>
-                          <span className="event-story-caption">{evt.title}</span>
-                        </div>
-                      ))}
+                        ));
+                      })()}
                     </div>
                   </section>
 
@@ -1907,41 +2577,61 @@ export default function App() {
                           </span>
                         </div>
 
-                        {/* Actions: Likes and Comments */}
-                        <div className="moment-actions">
+                        {/* Actions: Likes, Comments, Share, Bookmarks (Figma 635:868) */}
+                        <div className="moment-actions-figma">
                           <button 
-                            className={`moment-action-btn ${m.liked ? 'liked' : ''}`}
-                            onClick={() => likeMoment(m.id)}
-                          >
-                            <svg viewBox="0 0 24 24">
-                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                            <span>{m.likes} Likes</span>
-                          </button>
-
-                          <button 
-                            className="moment-action-btn"
+                            className="moment-comments-pill-btn"
                             onClick={() => setActiveCommentsMomentId(m.id)}
                           >
-                            <svg viewBox="0 0 24 24">
-                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                            </svg>
-                            <span>{m.comments.length} Comentários</span>
+                            Comentários {m.comments.length > 0 && `(${m.comments.length})`}
                           </button>
 
-                          <button 
-                            className="moment-action-btn"
-                            onClick={() => handleShareMomentClick(m)}
-                          >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="18" cy="5" r="3"/>
-                              <circle cx="6" cy="12" r="3"/>
-                              <circle cx="18" cy="19" r="3"/>
-                              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                            </svg>
-                            <span>Partilhar</span>
-                          </button>
+                          <div className="moment-icons-right">
+                            <button 
+                              className={`moment-icon-action-btn heart-btn ${m.liked ? 'liked' : ''}`}
+                              onClick={() => likeMoment(m.id)}
+                              aria-label="Gostar"
+                              style={{ position: 'relative' }}
+                            >
+                              <svg viewBox="0 0 35.0005 31.0041" fill={m.liked ? "var(--primary)" : "none"} stroke="currentColor" strokeWidth="3" strokeLinejoin="round">
+                                <path d="M31.1737 14.01L17.461 29.5041L3.70726 14.01C-3.7333 4.54136 9.36525 -4.06646 17.461 6.04774C26.7042 -4.06646 38.5921 4.54136 31.1737 14.01Z"/>
+                              </svg>
+                              <span style={{ 
+                                position: 'absolute', 
+                                top: '44%', 
+                                left: '50%', 
+                                transform: 'translate(-50%, -50%)', 
+                                fontSize: '9px', 
+                                fontWeight: '900', 
+                                color: m.liked ? '#ffffff' : 'var(--primary)',
+                                pointerEvents: 'none'
+                              }}>
+                                {m.likes}
+                              </span>
+                            </button>
+
+                            <button 
+                              className="moment-icon-action-btn share-btn"
+                              onClick={() => handleShareMomentClick(m)}
+                              aria-label="Partilhar"
+                            >
+                              <svg viewBox="0 0 27.0622 26.5001" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round">
+                                <path d="M12.4833 1.39259C12.8958 1.17704 13.3942 1.20784 13.7763 1.47364L25.2763 9.47364C25.6121 9.70732 25.8124 10.0909 25.8124 10.5C25.8124 10.9092 25.6121 11.2927 25.2763 11.5264L13.7763 19.5264C13.3942 19.7922 12.8958 19.823 12.4833 19.6074C12.0709 19.3919 11.8124 18.9654 11.8124 18.5V14.4658C10.5741 14.2189 9.59474 14.3566 8.80751 14.6924C7.82383 15.112 7.00173 15.9004 6.329 16.958C4.96147 19.1081 4.38986 22.0896 4.31142 24.0498C4.28635 24.6765 3.80031 25.1881 3.17568 25.2451C2.55112 25.3021 1.98082 24.8872 1.84267 24.2754C0.374352 17.7728 1.77421 13.5793 4.45009 10.957C6.66074 8.79083 9.57114 7.87806 11.8124 7.44532V2.50001C11.8124 2.03464 12.0709 1.60816 12.4833 1.39259Z"/>
+                              </svg>
+                            </button>
+
+                            {currentUser && (
+                              <button 
+                                className={`moment-icon-action-btn save-btn ${savedMoments.includes(m.id) ? 'saved' : ''}`}
+                                onClick={() => toggleSaveMoment(m.id)}
+                                aria-label="Guardar"
+                              >
+                                <svg viewBox="0 0 27 31" fill={savedMoments.includes(m.id) ? "var(--primary)" : "none"} stroke="currentColor" strokeWidth="3" strokeLinejoin="round">
+                                  <path d="M25.5 1.5H1.5V2.97368V29.5L14.25 21.3947L25.5 29.5V1.5Z"/>
+                                </svg>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </article>
                     ))}
@@ -1966,6 +2656,10 @@ export default function App() {
                     setPostTag2('');
                     setPostTag3('');
                     setPostDescription('');
+                    setNewPostEventId('');
+                    setNewPostLocation('');
+                    setEventSearchQuery('');
+                    setLocationSearchQuery('');
                     setIsBottomSheetCollapsed(false);
                     setCurrentTab('feed');
                   }} 
@@ -1989,7 +2683,7 @@ export default function App() {
                       }}
                     >
                       <span className="truncate-text">
-                        {events.find(ev => ev.id === newPostEventId)?.title || 'Evento*'}
+                        {events.find(ev => ev.id === newPostEventId)?.title || 'Evento *'}
                       </span>
                       <svg className={`chevron-icon ${isEventDropdownOpen ? 'open' : ''}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -2015,6 +2709,20 @@ export default function App() {
                         </div>
                         
                         <div className="dropdown-items-list">
+                          {/* Special Item: Criar Evento */}
+                          {('Criar Evento'.toLowerCase().includes(eventSearchQuery.toLowerCase())) && (
+                            <button
+                              type="button"
+                              className="dropdown-item special-location-item"
+                              onClick={() => {
+                                setIsCreatingEvent(true);
+                                setIsEventDropdownOpen(false);
+                              }}
+                            >
+                              Criar Evento
+                            </button>
+                          )}
+
                           {events
                             .filter(ev => ev.title.toLowerCase().includes(eventSearchQuery.toLowerCase()))
                             .map(ev => (
@@ -2028,7 +2736,8 @@ export default function App() {
                               </button>
                             ))
                           }
-                          {events.filter(ev => ev.title.toLowerCase().includes(eventSearchQuery.toLowerCase())).length === 0 && (
+                          {events.filter(ev => ev.title.toLowerCase().includes(eventSearchQuery.toLowerCase())).length === 0 &&
+                           !'Criar Evento'.toLowerCase().includes(eventSearchQuery.toLowerCase()) && (
                             <div className="dropdown-no-results">Nenhum evento encontrado</div>
                           )}
                         </div>
@@ -2047,7 +2756,7 @@ export default function App() {
                       }}
                     >
                       <span className="truncate-text">
-                        {newPostLocation || 'Localização'}
+                        {newPostLocation || 'Localização *'}
                       </span>
                       <svg className={`chevron-icon ${isLocationDropdownOpen ? 'open' : ''}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -2056,55 +2765,112 @@ export default function App() {
                     
                     {isLocationDropdownOpen && (
                       <div className="camera-dropdown-menu">
+                        <div className="dropdown-search-container">
+                          <svg className="dropdown-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                          </svg>
+                          <input 
+                            type="text" 
+                            placeholder="Pesquisar localização" 
+                            className="dropdown-search-input"
+                            value={locationSearchQuery}
+                            onChange={(e) => setLocationSearchQuery(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                        </div>
+
                         <div className="dropdown-items-list">
-                          <button
-                            type="button"
-                            className="dropdown-item"
-                            onClick={() => {
-                              const selectedEv = events.find(ev => ev.id === newPostEventId);
-                              if (selectedEv) {
-                                let loc = 'Aveiro, Portugal';
-                                if (selectedEv.id === 'event-1') loc = 'HardBar, Aveiro';
-                                else if (selectedEv.id === 'event-2') loc = 'Esgueira, Aveiro';
-                                else if (selectedEv.id === 'event-3') loc = 'Café do Parque, Aveiro';
-                                else loc = selectedEv.title + ', Aveiro';
-                                setNewPostLocation(loc);
-                              }
-                              setIsLocationDropdownOpen(false);
-                            }}
-                          >
-                            Localização do Evento
-                          </button>
-                          <button
-                            type="button"
-                            className="dropdown-item"
-                            onClick={() => {
-                              setNewPostLocation('Minha Localização (GPS)');
-                              setIsLocationDropdownOpen(false);
-                            }}
-                          >
-                            Minha Localização (GPS)
-                          </button>
-                          <button
-                            type="button"
-                            className="dropdown-item"
-                            onClick={() => {
-                              setNewPostLocation('Jardim Oudinot');
-                              setIsLocationDropdownOpen(false);
-                            }}
-                          >
-                            Jardim Oudinot
-                          </button>
-                          <button
-                            type="button"
-                            className="dropdown-item"
-                            onClick={() => {
-                              setNewPostLocation('Cais da Fonte Nova');
-                              setIsLocationDropdownOpen(false);
-                            }}
-                          >
-                            Cais da Fonte Nova
-                          </button>
+                          {/* Special Items */}
+                          {('Localização do Evento'.toLowerCase().includes(locationSearchQuery.toLowerCase())) && (
+                            <button
+                              type="button"
+                              className={`dropdown-item special-location-item ${(() => {
+                                const selectedEv = events.find(ev => ev.id === newPostEventId);
+                                let eventLoc = 'Aveiro, Portugal';
+                                if (selectedEv) {
+                                  if (selectedEv.id === 'event-1') eventLoc = 'HardBar, Aveiro';
+                                  else if (selectedEv.id === 'event-2') eventLoc = 'Esgueira, Aveiro';
+                                  else if (selectedEv.id === 'event-3') eventLoc = 'Café do Parque, Aveiro';
+                                  else eventLoc = selectedEv.title + ', Aveiro';
+                                }
+                                return newPostLocation === eventLoc ? 'active' : '';
+                              })()}`}
+                              onClick={() => {
+                                const selectedEv = events.find(ev => ev.id === newPostEventId);
+                                if (selectedEv) {
+                                  let loc = 'Aveiro, Portugal';
+                                  if (selectedEv.id === 'event-1') loc = 'HardBar, Aveiro';
+                                  else if (selectedEv.id === 'event-2') loc = 'Esgueira, Aveiro';
+                                  else if (selectedEv.id === 'event-3') loc = 'Café do Parque, Aveiro';
+                                  else loc = selectedEv.title + ', Aveiro';
+                                  setNewPostLocation(loc);
+                                } else {
+                                  setNewPostLocation('Aveiro, Portugal');
+                                }
+                                setIsLocationDropdownOpen(false);
+                                setLocationSearchQuery('');
+                              }}
+                            >
+                              Localização do Evento
+                            </button>
+                          )}
+
+                          {('Minha Localização (GPS)'.toLowerCase().includes(locationSearchQuery.toLowerCase())) && (
+                            <button
+                              type="button"
+                              className={`dropdown-item special-location-item ${newPostLocation === 'Minha Localização (GPS)' ? 'active' : ''}`}
+                              onClick={() => {
+                                setNewPostLocation('Minha Localização (GPS)');
+                                setIsLocationDropdownOpen(false);
+                                setLocationSearchQuery('');
+                              }}
+                            >
+                              Minha Localização (GPS)
+                            </button>
+                          )}
+
+                          {/* Regular Items */}
+                          {[
+                            'Jardim Oudinot',
+                            'Cais da Fonte Nova',
+                            'Praia da Barra',
+                            'Costa Nova',
+                            'Universidade de Aveiro',
+                            'Forum Aveiro'
+                          ]
+                            .filter(loc => loc.toLowerCase().includes(locationSearchQuery.toLowerCase()))
+                            .map((loc, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                className={`dropdown-item ${newPostLocation === loc ? 'active' : ''}`}
+                                onClick={() => {
+                                  setNewPostLocation(loc);
+                                  setIsLocationDropdownOpen(false);
+                                  setLocationSearchQuery('');
+                                }}
+                              >
+                                {loc}
+                              </button>
+                            ))
+                          }
+
+                          {/* No results fallback */}
+                          {(!'Localização do Evento'.toLowerCase().includes(locationSearchQuery.toLowerCase()) &&
+                            !'Minha Localização (GPS)'.toLowerCase().includes(locationSearchQuery.toLowerCase()) &&
+                            [
+                              'Jardim Oudinot',
+                              'Cais da Fonte Nova',
+                              'Praia da Barra',
+                              'Costa Nova',
+                              'Universidade de Aveiro',
+                              'Forum Aveiro'
+                            ].filter(loc => loc.toLowerCase().includes(locationSearchQuery.toLowerCase())).length === 0) && (
+                              <div className="dropdown-no-results">Nenhuma localização encontrada</div>
+                            )
+                          }
                           
                           <div className="dropdown-custom-input-row" onClick={(e) => e.stopPropagation()}>
                             <input
@@ -2119,6 +2885,7 @@ export default function App() {
                                     e.target.value = '';
                                   }
                                   setIsLocationDropdownOpen(false);
+                                  setLocationSearchQuery('');
                                 }
                               }}
                             />
@@ -2215,14 +2982,25 @@ export default function App() {
               ) : (
                 // Details Form Bottom Sheet (After Capture)
                 !isBottomSheetCollapsed && (
-                  <div className="post-metadata-sheet-overlay" onClick={() => setIsBottomSheetCollapsed(true)}>
-                    <div className="post-metadata-sheet" onClick={(e) => e.stopPropagation()}>
-                      {/* Swipe down handle */}
-                      <div className="metadata-sheet-handle" onClick={() => setIsBottomSheetCollapsed(true)}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f17522" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                      </div>
+                  <div className="post-metadata-sheet-overlay" onClick={closeMomentSheetWithAnimation}>
+                    <div 
+                      ref={sheetRef} 
+                      className="post-metadata-sheet" 
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerMove={handleSheetDragMove}
+                      onAnimationEnd={(e) => {
+                        e.currentTarget.style.animation = 'none';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      {/* Drag handle */}
+                      <div 
+                        className="metadata-sheet-handle" 
+                        onClick={closeMomentSheetWithAnimation}
+                        onPointerDown={handleSheetDragStart}
+                        onPointerUp={handleSheetDragEnd}
+                        style={{ touchAction: 'none' }}
+                      ></div>
 
                       <form className="metadata-form" onSubmit={(e) => { e.preventDefault(); handlePublishPost(); }}>
                         <div className="metadata-form-group">
@@ -2275,7 +3053,6 @@ export default function App() {
                         </div>
 
                         <div className="metadata-actions-row">
-                          {/* PolarAI AutoFill */}
                           <button 
                             type="button" 
                             className="metadata-action-btn polar-ai-btn"
@@ -2285,7 +3062,14 @@ export default function App() {
                             {isAiLoading ? (
                               <div className="ai-spinner-icon"></div>
                             ) : (
-                              <span>PolarAI</span>
+                              <>
+                                <svg className="sparkle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/>
+                                  <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5Z" opacity="0.8"/>
+                                  <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z" opacity="0.8"/>
+                                </svg>
+                                <span>PolarIA</span>
+                              </>
                             )}
                           </button>
 
@@ -2321,20 +3105,7 @@ export default function App() {
               {/* 1. Leaflet map */}
               <div id="map" ref={mapContainerRef} className="leaflet-map-div"></div>
 
-              {/* 2. Polariscope Radar Overlay */}
-              {polariscopeVisible && (
-                <div className="polariscope-overlay">
-                  <div className="polariscope-circle circle-1"></div>
-                  <div className="polariscope-circle circle-2"></div>
-                  <div className="polariscope-circle circle-3"></div>
-                  <div className="polariscope-circle circle-4"></div>
-                  <div className="polariscope-axis axis-h"></div>
-                  <div className="polariscope-axis axis-v"></div>
-                  <div className="polariscope-axis axis-d1"></div>
-                  <div className="polariscope-axis axis-d2"></div>
-                  <div className="polariscope-center"></div>
-                </div>
-              )}
+
 
               {/* 3. Floating Search Bar (Top) */}
               <div className="floating-search-bar">
@@ -2410,6 +3181,19 @@ export default function App() {
                   </svg>
                 </button>
               </div>
+
+              {/* 5. Range Slider Control (Bottom) */}
+              <div className="map-radius-control-capsule">
+                <span className="radius-label">Raio de Captura: <strong>{captureRadius}km</strong></span>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="100" 
+                  value={captureRadius} 
+                  onChange={(e) => setCaptureRadius(Number(e.target.value))} 
+                  className="map-radius-slider"
+                />
+              </div>
             </div>
           )}
 
@@ -2422,9 +3206,10 @@ export default function App() {
         {currentTab !== 'camera' && (
           <nav className="navbar-floating-capsule">
             <button 
-              className={`navbar-item ${currentTab === 'feed' ? 'active' : ''}`}
+              className={`navbar-item ${currentTab === 'feed' && !viewingUser ? 'active' : ''}`}
               onClick={() => {
                 setCurrentTab('feed');
+                setViewingUser(null);
                 setViewingEventId(null);
                 setExpandedMomentId(null);
               }}
@@ -2437,7 +3222,7 @@ export default function App() {
                   strokeWidth="2" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
-                  fill={currentTab === 'feed' ? 'white' : 'none'}
+                  fill={currentTab === 'feed' && !viewingUser ? 'white' : 'none'}
                 />
               </svg>
             </button>
@@ -2447,6 +3232,7 @@ export default function App() {
               onClick={() => {
                 setCapturedPhoto(null);
                 setCurrentTab('camera');
+                setViewingUser(null);
                 setViewingEventId(null);
                 setExpandedMomentId(null);
               }}
@@ -2473,9 +3259,10 @@ export default function App() {
             </button>
             
             <button 
-              className={`navbar-item ${currentTab === 'map' ? 'active' : ''}`}
+              className={`navbar-item ${currentTab === 'map' && !viewingUser ? 'active' : ''}`}
               onClick={() => {
                 setCurrentTab('map');
+                setViewingUser(null);
                 setViewingEventId(null);
                 setExpandedMomentId(null);
               }}
@@ -2484,10 +3271,10 @@ export default function App() {
               <svg width="28" height="26" viewBox="0 0 36 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path 
                   d="M1 4L12 0.5V26.5L1 30ZM12 0.5L24 4V30L12 26.5ZM24 4L35 0.5V26.5L24 30Z" 
-                  stroke={currentTab === 'map' ? '#F17522' : 'white'}
+                  stroke={currentTab === 'map' && !viewingUser ? '#F17522' : 'white'}
                   strokeWidth="2.5" 
                   strokeLinejoin="round"
-                  fill={currentTab === 'map' ? 'white' : 'none'}
+                  fill={currentTab === 'map' && !viewingUser ? 'white' : 'none'}
                 />
               </svg>
             </button>
@@ -2650,6 +3437,22 @@ export default function App() {
                       <span>{m.comments.length} Comentários</span>
                     </button>
 
+                    {currentUser && (
+                      <button 
+                        className={`expanded-moment-action-btn ${savedMoments.includes(m.id) ? 'saved' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSaveMoment(m.id);
+                        }}
+                        style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff' }}
+                      >
+                        <svg viewBox="0 0 24 24" fill={savedMoments.includes(m.id) ? "#f5a623" : "none"} style={{ stroke: savedMoments.includes(m.id) ? '#f5a623' : '#fff', strokeWidth: '2.5', width: '20px', height: '20px' }}>
+                          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span>{savedMoments.includes(m.id) ? 'Guardado' : 'Guardar'}</span>
+                      </button>
+                    )}
+
                     <button 
                       className="expanded-moment-action-btn"
                       onClick={(e) => {
@@ -2677,13 +3480,27 @@ export default function App() {
 
         {/* --- BOTTOM SHEET: CREATE EVENT --- */}
         {isCreatingEvent && (
-          <div className="bottom-sheet-overlay" onClick={() => setIsCreatingEvent(false)}>
-            <div className="orange-bottom-sheet" onClick={(e) => e.stopPropagation()}>
-              <div className="bottom-sheet-drag-handle"></div>
+          <div className="bottom-sheet-overlay" onClick={closeEventSheetWithAnimation}>
+            <div 
+              ref={eventSheetRef} 
+              className="orange-bottom-sheet" 
+              onClick={(e) => e.stopPropagation()}
+              onPointerMove={handleEventSheetDragMove}
+              onAnimationEnd={(e) => {
+                e.currentTarget.style.animation = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <div 
+                className="bottom-sheet-drag-handle" 
+                onClick={closeEventSheetWithAnimation}
+                onPointerDown={handleEventSheetDragStart}
+                onPointerUp={handleEventSheetDragEnd}
+                style={{ touchAction: 'none', cursor: 'pointer' }}
+              ></div>
               
               <div className="bottom-sheet-header">
                 <h3 className="bottom-sheet-title">Criar Novo Evento</h3>
-                <button className="bottom-sheet-close" onClick={() => setIsCreatingEvent(false)}>×</button>
               </div>
 
               <form onSubmit={handleCreateEvent}>
@@ -2739,15 +3556,6 @@ export default function App() {
                 <div className="form-group">
                   <label className="form-label">Escolhe a Imagem de Capa</label>
                   <div className="image-selector-row">
-                    {STOCK_IMAGES.map((img, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`image-selector-option ${newEventImg === img.url ? 'selected' : ''}`}
-                        onClick={() => setNewEventImg(img.url)}
-                      >
-                        <img src={img.url} alt={img.name} />
-                      </div>
-                    ))}
                     {customEventImg && (
                       <div 
                         className={`image-selector-option ${newEventImg === customEventImg ? 'selected' : ''}`}
@@ -2791,7 +3599,7 @@ export default function App() {
 
 
 
-                <button type="submit" className="submit-btn">Adicionar Evento</button>
+                <button type="submit" className="submit-btn">Criar Evento</button>
               </form>
             </div>
           </div>
@@ -2920,6 +3728,243 @@ export default function App() {
                   </div>
                   <span className="sharing-social-label">Mais</span>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- MODAL: ADJUST CAPTURE RADIUS --- */}
+        {isRadiusModalOpen && (
+          <div className="radius-modal-overlay" onClick={() => setIsRadiusModalOpen(false)}>
+            <div className="radius-modal-card" onClick={(e) => e.stopPropagation()}>
+              <h3 className="radius-modal-title">Raio de Captura</h3>
+              <p className="radius-modal-desc">
+                Ajusta o raio para ver os eventos que decorrem até esta distância da tua localização.
+              </p>
+              
+              <div className="radius-modal-value-display">
+                <span className="radius-value-number">{captureRadius}</span>
+                <span className="radius-value-unit">km</span>
+              </div>
+
+              <div className="radius-modal-slider-container">
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="100" 
+                  value={captureRadius} 
+                  onChange={(e) => setCaptureRadius(Number(e.target.value))} 
+                  className="modal-radius-slider"
+                />
+                <div className="slider-labels">
+                  <span>1 km</span>
+                  <span>50 km</span>
+                  <span>100 km</span>
+                </div>
+              </div>
+
+              <button className="radius-modal-confirm-btn" onClick={() => setIsRadiusModalOpen(false)}>
+                Confirmar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* --- BOTTOM SHEET: EDIT PROFILE --- */}
+        {isEditingProfile && (
+          <div className="bottom-sheet-overlay" onClick={() => setIsEditingProfile(false)}>
+            <div className="orange-bottom-sheet profile-edit-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="bottom-sheet-drag-handle"></div>
+              <div className="orange-bottom-sheet-header">
+                <h2>Editar Perfil</h2>
+              </div>
+              <div className="orange-bottom-sheet-content">
+                <div className="profile-edit-avatar-section">
+                  <div className="profile-edit-media-preview" style={{ backgroundImage: `url(${currentUser?.banner || viewingUser?.banner})` }}>
+                    <button 
+                      type="button" 
+                      className="edit-media-btn edit-banner-btn"
+                      onClick={() => profileBannerInputRef.current && profileBannerInputRef.current.click()}
+                    >
+                      Alterar Banner
+                    </button>
+                  </div>
+                  
+                  <div className="profile-edit-avatar-container">
+                    <img src={currentUser?.avatar || viewingUser?.avatar} className="profile-edit-avatar-img" alt="Avatar" />
+                    <button 
+                      type="button" 
+                      className="edit-avatar-camera-btn"
+                      onClick={() => profileAvatarInputRef.current && profileAvatarInputRef.current.click()}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSaveProfile(editProfileName, editProfileBio, editProfileRole);
+                }} className="profile-edit-form">
+                  <div className="form-group">
+                    <label className="orange-label">Nome</label>
+                    <input 
+                      type="text" 
+                      className="orange-input" 
+                      value={editProfileName} 
+                      onChange={(e) => setEditProfileName(e.target.value)} 
+                      placeholder="Nome do perfil"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="orange-label">Biografia</label>
+                    <textarea 
+                      className="orange-input textarea-bio" 
+                      value={editProfileBio} 
+                      onChange={(e) => setEditProfileBio(e.target.value)} 
+                      placeholder="Fale um pouco sobre si..."
+                      rows="3"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="orange-label">Tipo de conta</label>
+                    <div className="account-type-toggle-row">
+                      <button 
+                        type="button"
+                        className={`account-type-pill ${editProfileRole === 'Pessoal' ? 'active' : ''}`}
+                        onClick={() => setEditProfileRole('Pessoal')}
+                      >
+                        Pessoal
+                      </button>
+                      <button 
+                        type="button"
+                        className={`account-type-pill ${editProfileRole === 'Organização' ? 'active' : ''}`}
+                        onClick={() => setEditProfileRole('Organização')}
+                      >
+                        Organização
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="profile-edit-buttons-row">
+                    <button 
+                      type="button" 
+                      className="profile-edit-cancel-btn" 
+                      onClick={() => setIsEditingProfile(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="profile-edit-save-btn"
+                    >
+                      Guardar
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- BOTTOM SHEET: NOTIFICATIONS --- */}
+        {isNotificationsOpen && (
+          <div className="bottom-sheet-overlay" onClick={() => setIsNotificationsOpen(false)}>
+            <div className="orange-bottom-sheet notifications-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="bottom-sheet-drag-handle"></div>
+              <div className="orange-bottom-sheet-header">
+                <h2>Notificações</h2>
+              </div>
+              <div className="orange-bottom-sheet-content">
+                <div className="notifications-list">
+                  <div className="notification-item unread">
+                    <div className="notification-avatar" style={{ backgroundImage: `url(/assets/hardbar_avatar.png)` }}></div>
+                    <div className="notification-details">
+                      <p><strong>HardBar</strong> gostou do teu momento em <em>Concerto no Hardbar</em>.</p>
+                      <span className="notification-time">Há 5 min</span>
+                    </div>
+                    <div className="notification-status-dot"></div>
+                  </div>
+                  <div className="notification-item">
+                    <div className="notification-avatar" style={{ backgroundImage: `url(https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80)` }}></div>
+                    <div className="notification-details">
+                      <p><strong>Ana Silva</strong> começou a seguir-te.</p>
+                      <span className="notification-time">Há 1 hora</span>
+                    </div>
+                  </div>
+                  <div className="notification-item">
+                    <div className="notification-avatar" style={{ backgroundImage: `url(/assets/logo.svg)` }}></div>
+                    <div className="notification-details">
+                      <p><strong>PolarIA</strong> sugeriu adicionar o momento ao evento <em>Cicloturismo Aveiro</em>.</p>
+                      <span className="notification-time">Há 1 dia</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- BOTTOM SHEET: SETTINGS --- */}
+        {isSettingsOpen && (
+          <div className="bottom-sheet-overlay" onClick={() => setIsSettingsOpen(false)}>
+            <div className="orange-bottom-sheet settings-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="bottom-sheet-drag-handle"></div>
+              <div className="orange-bottom-sheet-header">
+                <h2>Configurações</h2>
+              </div>
+              <div className="orange-bottom-sheet-content settings-content-list">
+                <button 
+                  className="settings-action-row" 
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    startEditingProfile();
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span>Editar Perfil</span>
+                </button>
+                
+                <button className="settings-action-row" onClick={() => { showToast('Idioma: Português'); setIsSettingsOpen(false); }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                  <span>Idioma (Português)</span>
+                </button>
+
+                <button className="settings-action-row" onClick={() => { showToast('Notificações ativas'); setIsSettingsOpen(false); }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  <span>Definições de Notificações</span>
+                </button>
+
+                <button 
+                  className="settings-action-row logout-row" 
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    handleLogout();
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                  </svg>
+                  <span>Terminar Sessão</span>
+                </button>
               </div>
             </div>
           </div>
