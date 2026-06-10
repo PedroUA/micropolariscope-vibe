@@ -1,0 +1,30 @@
+{
+  "short_name": "microPolariscope",
+  "name": "microPolariscope - Rede Social",
+  "description": "microPolariscope é uma rede social interativa para encontrar eventos locais e partilhar momentos na comunidade.",
+  "icons": [
+    {
+      "src": "/assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/logo.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f0f12",
+  "theme_color": "#f17522",
+  "display": "standalone",
+  "orientation": "portrait"
+}

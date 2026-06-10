@@ -201,6 +201,91 @@ export default function App() {
       organizerLabel: 'Direção do Aveiro Padel Club',
       organizerLogo: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=80&auto=format&fit=crop&q=60',
       banner: 'https://images.unsplash.com/photo-1545809074-59472b3f5ecc?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      id: 'event-9',
+      title: 'Francesinhas & Co. na Foz',
+      organizer: 'Porto Gastronomia',
+      image: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=150&auto=format&fit=crop&q=60',
+      logo: '/assets/profile.svg',
+      live: false,
+      description: 'Convívio gastronómico à beira-rio. Vem saborear as melhores francesinhas com molho caseiro tradicional e batata frita estaladiça na Foz do Douro.',
+      detailImage: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&auto=format&fit=crop&q=80',
+      lat: 41.1579,
+      lng: -8.6291,
+      date: 'Amanhã, 12:00 - 16:00',
+      subtitle: 'Um almoço memorável com a melhor francesinha do norte.',
+      organizerLabel: 'Associação de Gastronomia do Porto',
+      organizerLogo: '/assets/profile.svg',
+      banner: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      id: 'event-10',
+      title: 'Fado de Coimbra no Penedo',
+      organizer: 'Coimbra Académica',
+      image: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=150&auto=format&fit=crop&q=60',
+      logo: '/assets/profile.svg',
+      live: false,
+      description: 'Uma noite especial de fados de Coimbra ao luar, interpretada por estudantes e antigos estudantes universitários com trajes tradicionais.',
+      detailImage: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&auto=format&fit=crop&q=80',
+      lat: 40.2075,
+      lng: -8.4235,
+      date: 'Sábado, 21:00 - 23:30',
+      subtitle: 'Serenata tradicional no Penedo da Saudade.',
+      organizerLabel: 'Associação de Fado de Coimbra',
+      organizerLogo: '/assets/profile.svg',
+      banner: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      id: 'event-11',
+      title: 'Passeio Moliceiro ao Pôr do Sol',
+      organizer: 'Ria de Aveiro Tours',
+      image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=150&auto=format&fit=crop&q=60',
+      logo: '/assets/profile.svg',
+      live: true,
+      description: 'Descobre a beleza da ria a bordo de um moliceiro tradicional, acompanhado por espumante da Bairrada e os clássicos ovos moles de Aveiro.',
+      detailImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80',
+      lat: 40.6433,
+      lng: -8.6534,
+      date: 'Hoje, 19:30 - 21:00',
+      subtitle: 'Navega pelos canais urbanos num passeio romântico ao entardecer.',
+      organizerLabel: 'Ria Tours Organização',
+      organizerLogo: '/assets/profile.svg',
+      banner: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      id: 'event-12',
+      title: 'Festival do Bacalhau de Ílhavo',
+      organizer: 'Município de Ílhavo',
+      image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=150&auto=format&fit=crop&q=60',
+      logo: '/assets/profile.svg',
+      live: false,
+      description: 'Showcookings com chefs nacionais, provas gastronómicas, artesanato local e concertos ao vivo no Jardim Henriqueta Maia.',
+      detailImage: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80',
+      lat: 40.6080,
+      lng: -8.6690,
+      date: 'Amanhã, 11:00 - 23:00',
+      subtitle: 'A maior festa gastronómica dedicada ao bacalhau.',
+      organizerLabel: 'Câmara Municipal de Ílhavo',
+      organizerLogo: '/assets/profile.svg',
+      banner: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80'
+    },
+    {
+      id: 'event-13',
+      title: 'Feira de São Mateus',
+      organizer: 'Viseu Marca',
+      image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=150&auto=format&fit=crop&q=60',
+      logo: '/assets/profile.svg',
+      live: false,
+      description: 'A feira franca mais antiga da Península Ibérica. Diversões, gastronomia regional, exposições de artesanato e grandes concertos musicais.',
+      detailImage: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&auto=format&fit=crop&q=80',
+      lat: 40.6575,
+      lng: -7.9135,
+      date: 'De 10 de Agosto a 21 de Setembro',
+      subtitle: 'A feira de todas as feiras no coração de Viseu.',
+      organizerLabel: 'Viseu Marca Organização',
+      organizerLogo: '/assets/profile.svg',
+      banner: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&auto=format&fit=crop&q=80'
     }
   ]);
 
@@ -410,6 +495,86 @@ export default function App() {
       liked: false,
       isLive: true,
       comments: []
+    },
+    {
+      id: 'moment-ev9-1',
+      eventId: 'event-9',
+      authorName: 'Carlos Porto',
+      authorAvatar: '/assets/profile.svg',
+      eventTitle: 'Francesinhas & Co. na Foz',
+      location: 'Foz do Douro, Porto',
+      photo: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&auto=format&fit=crop&q=80',
+      title: 'A melhor do norte!',
+      description: 'O molho picante da francesinha está soberbo. Acompanhado por uma cerveja artesanal bem fresca!',
+      time: 'Amanhã',
+      likes: 72,
+      liked: false,
+      isLive: false,
+      comments: []
+    },
+    {
+      id: 'moment-ev10-1',
+      eventId: 'event-10',
+      authorName: 'Coimbra Estudante',
+      authorAvatar: '/assets/profile.svg',
+      eventTitle: 'Fado de Coimbra no Penedo',
+      location: 'Penedo da Saudade, Coimbra',
+      photo: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&auto=format&fit=crop&q=80',
+      title: 'Serenatas no penedo',
+      description: 'O som da guitarra de Coimbra ecoa no Penedo da Saudade. Noite mágica de tradição académica.',
+      time: '1 dia atrás',
+      likes: 95,
+      liked: false,
+      isLive: false,
+      comments: []
+    },
+    {
+      id: 'moment-ev11-1',
+      eventId: 'event-11',
+      authorName: 'Marta Aveiro',
+      authorAvatar: '/assets/profile.svg',
+      eventTitle: 'Passeio Moliceiro ao Pôr do Sol',
+      location: 'Canais de Aveiro',
+      photo: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80',
+      title: 'Pôr do sol dourado na ria',
+      description: 'Navegar ao entardecer no moliceiro é das melhores experiências em Aveiro. O espumante estava divinal!',
+      time: 'LIVE',
+      likes: 112,
+      liked: true,
+      isLive: true,
+      comments: []
+    },
+    {
+      id: 'moment-ev12-1',
+      eventId: 'event-12',
+      authorName: 'Luís Gastrónomo',
+      authorAvatar: '/assets/profile.svg',
+      eventTitle: 'Festival do Bacalhau de Ílhavo',
+      location: 'Jardim Henriqueta Maia, Ílhavo',
+      photo: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80',
+      title: 'Pataniscas de chorar por mais',
+      description: 'Showcooking excelente no festival do bacalhau. Prova de pataniscas acabadas de fritar!',
+      time: 'Amanhã',
+      likes: 83,
+      liked: false,
+      isLive: false,
+      comments: []
+    },
+    {
+      id: 'moment-ev13-1',
+      eventId: 'event-13',
+      authorName: 'Sofia Viseu',
+      authorAvatar: '/assets/profile.svg',
+      eventTitle: 'Feira de São Mateus',
+      location: 'Rossio, Viseu',
+      photo: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&auto=format&fit=crop&q=80',
+      title: 'Carrossel gigante e farturas',
+      description: 'A Feira de São Mateus já abriu! Muita animação, farturas quentinhas e diversões para toda a família.',
+      time: '2 dias atrás',
+      likes: 104,
+      liked: false,
+      isLive: false,
+      comments: []
     }
   ]);
 
@@ -568,6 +733,7 @@ export default function App() {
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
   const radiusCircleRef = useRef(null);
+  const radiusCenterMarkerRef = useRef(null);
 
   // Video Ref
   const videoRef = useRef(null);
@@ -578,7 +744,7 @@ export default function App() {
   const profileAvatarInputRef = useRef(null);
 
   // --- FIGMA SCREEN 571:948 STATES & ACTIONS ---
-  const USER_LOCATION = [40.6435, -8.6406];
+  const USER_LOCATION = [40.6312, -8.6575]; // University of Aveiro coordinates for testing
   const [isSharingSheetOpen, setIsSharingSheetOpen] = useState(false);
   const [sharingData, setSharingData] = useState({
     type: 'map',
@@ -591,7 +757,10 @@ export default function App() {
   const [mapStyle, setMapStyle] = useState('light');
   const [toastMessage, setToastMessage] = useState(null);
   const [captureRadius, setCaptureRadius] = useState(25);
+  const [radiusCenter, setRadiusCenter] = useState(USER_LOCATION);
   const [isRadiusModalOpen, setIsRadiusModalOpen] = useState(false);
+  const [isMapCenteredOnUser, setIsMapCenteredOnUser] = useState(false);
+  const [hasSeenMapOnboarding, setHasSeenMapOnboarding] = useState(false);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -616,8 +785,14 @@ export default function App() {
 
   const handleLocationClick = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.setView(USER_LOCATION, 15, { animate: true });
-      showToast("Focando na sua localização");
+      if (!isMapCenteredOnUser) {
+        mapInstanceRef.current.setView(USER_LOCATION, 15, { animate: true });
+        setIsMapCenteredOnUser(true);
+        showToast("Mapa centrado na sua localização. Clique novamente para centrar o raio.");
+      } else {
+        setRadiusCenter(USER_LOCATION);
+        showToast("Raio de pesquisa centrado na sua localização.");
+      }
     }
   };
 
@@ -693,12 +868,40 @@ export default function App() {
         iconAnchor: [21, 21]
       });
 
+      // Keep GPS location arrow marker
       L.marker(USER_LOCATION, { icon: userIcon })
         .addTo(map)
-        .bindPopup('Minha Localização');
+        .bindPopup('Minha Localização Atual (GPS)');
 
-      // Add visual capture radius circle centered at USER_LOCATION
-      const radiusCircle = L.circle(USER_LOCATION, {
+      // Custom target icon for radius center
+      const centerIcon = L.divIcon({
+        html: `
+          <div style="display: flex; align-items: center; justify-content: center; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="#f17522" stroke-width="3" fill="rgba(241, 117, 34, 0.3)"/>
+              <circle cx="12" cy="12" r="3" fill="#f17522"/>
+            </svg>
+          </div>
+        `,
+        className: 'radius-center-marker-icon',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      // Target pin marker for search radius center
+      const centerMarker = L.marker(radiusCenter, { icon: centerIcon, draggable: true })
+        .addTo(map)
+        .bindPopup('Foco da Pesquisa (Arraste para mover ou clique no mapa para redefinir)');
+
+      centerMarker.on('dragend', (e) => {
+        const newPos = e.target.getLatLng();
+        setRadiusCenter([newPos.lat, newPos.lng]);
+      });
+
+      radiusCenterMarkerRef.current = centerMarker;
+
+      // Add visual capture radius circle centered at radiusCenter
+      const radiusCircle = L.circle(radiusCenter, {
         color: '#f17522',
         fillColor: '#f17522',
         fillOpacity: 0.12,
@@ -711,6 +914,57 @@ export default function App() {
       }
       
       radiusCircleRef.current = radiusCircle;
+
+      // Fit bounds to show the initial radius circle
+      map.fitBounds(radiusCircle.getBounds());
+
+      // Listen to map events for long-press re-centering & clearing isMapCenteredOnUser
+      let pressTimer = null;
+      
+      const startPress = (latlng) => {
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = setTimeout(() => {
+          setRadiusCenter([latlng.lat, latlng.lng]);
+          if (navigator.vibrate) {
+            navigator.vibrate(50);
+          }
+          pressTimer = null;
+        }, 1000);
+      };
+      
+      const cancelPress = () => {
+        if (pressTimer) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+      };
+
+      map.on('mousedown', (e) => {
+        if (e.originalEvent && e.originalEvent.button === 0) {
+          startPress(e.latlng);
+        }
+      });
+      
+      map.on('touchstart', (e) => {
+        if (e.latlng) {
+          startPress(e.latlng);
+        }
+      });
+
+      map.on('mouseup', cancelPress);
+      map.on('touchend', cancelPress);
+      map.on('dragstart', () => {
+        cancelPress();
+        setIsMapCenteredOnUser(false);
+      });
+      map.on('zoomstart', () => {
+        cancelPress();
+        setIsMapCenteredOnUser(false);
+      });
+      map.on('movestart', () => {
+        cancelPress();
+        setIsMapCenteredOnUser(false);
+      });
 
       // Force size recalculation to fix grey rendering bugs
       [50, 150, 400, 1000].forEach(delay => {
@@ -797,6 +1051,7 @@ export default function App() {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
         radiusCircleRef.current = null;
+        radiusCenterMarkerRef.current = null;
       }
     };
   }, [currentTab, events, mapSearchQuery]);
@@ -811,6 +1066,8 @@ export default function App() {
         if (!mapInstanceRef.current.hasLayer(circle)) {
           circle.addTo(mapInstanceRef.current);
         }
+        // Auto-fit bounds on radius change to see circle boundary
+        mapInstanceRef.current.fitBounds(circle.getBounds());
       } else {
         if (mapInstanceRef.current.hasLayer(circle)) {
           circle.remove();
@@ -818,6 +1075,20 @@ export default function App() {
       }
     }
   }, [captureRadius, polariscopeVisible]);
+
+  // Update radius center marker and circle dynamically when radiusCenter state changes
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      if (radiusCenterMarkerRef.current) {
+        radiusCenterMarkerRef.current.setLatLng(radiusCenter);
+      }
+      if (radiusCircleRef.current) {
+        radiusCircleRef.current.setLatLng(radiusCenter);
+        // Auto-fit bounds when radius center changes to see search circle boundary
+        mapInstanceRef.current.fitBounds(radiusCircleRef.current.getBounds());
+      }
+    }
+  }, [radiusCenter]);
 
   // --- MAP STYLE UPDATES ---
   const tileLayerRef = useRef(null);
@@ -834,6 +1105,42 @@ export default function App() {
       tileLayerRef.current = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(mapInstanceRef.current);
     }
   }, [mapStyle, currentTab]);
+
+  // --- HISTORY & MOBILE BACK BUTTON HANDLER ---
+  const wasDetailOpenRef = useRef(false);
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (activeStoryEventId) {
+        setActiveStoryEventId(null);
+      } else if (expandedMomentId) {
+        setExpandedMomentId(null);
+      } else if (viewingEventId) {
+        setViewingEventId(null);
+      } else if (viewingUser) {
+        setViewingUser(null);
+      } else if (loginScreen !== 'welcome' && !currentUser) {
+        setLoginScreen('welcome');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [viewingUser, viewingEventId, expandedMomentId, activeStoryEventId, loginScreen, currentUser]);
+
+  useEffect(() => {
+    const isDetailOpen = !!(viewingUser || viewingEventId || expandedMomentId || activeStoryEventId || (loginScreen !== 'welcome' && !currentUser));
+    
+    if (isDetailOpen !== wasDetailOpenRef.current) {
+      if (isDetailOpen) {
+        window.history.pushState({ isAppDetail: true }, '');
+      } else {
+        if (window.history.state && window.history.state.isAppDetail) {
+          window.history.back();
+        }
+      }
+      wasDetailOpenRef.current = isDetailOpen;
+    }
+  }, [viewingUser, viewingEventId, expandedMomentId, activeStoryEventId, loginScreen, currentUser]);
 
   // --- MAP RESIZE ROBUSTNESS ---
   useEffect(() => {
@@ -860,7 +1167,7 @@ export default function App() {
     try {
       setCameraError(false);
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' },
+        video: { facingMode: 'environment' },
         audio: false
       });
       setCameraStream(stream);
@@ -887,9 +1194,6 @@ export default function App() {
       canvas.width = videoRef.current.videoWidth || 640;
       canvas.height = videoRef.current.videoHeight || 640;
       const ctx = canvas.getContext('2d');
-      // Mirror the image for self-camera feel
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
       ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL('image/png');
       setCapturedPhoto(dataUrl);
@@ -1653,12 +1957,9 @@ export default function App() {
       scrollTop = slider.scrollTop;
     };
 
-    const onMouseLeave = () => {
-      isDown = false;
-      slider.classList.remove('active-dragging');
-    };
-
+    // Attach mouseup and mousemove to document so dragging outside the element still works
     const onMouseUp = () => {
+      if (!isDown) return;
       isDown = false;
       slider.classList.remove('active-dragging');
     };
@@ -1678,19 +1979,18 @@ export default function App() {
     };
 
     slider.addEventListener('mousedown', onMouseDown);
-    slider.addEventListener('mouseleave', onMouseLeave);
-    slider.addEventListener('mouseup', onMouseUp);
-    slider.addEventListener('mousemove', onMouseMove);
     slider.addEventListener('dragstart', onDragStart);
+    // Listen on document so mouse leaving frame boundary still works
+    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mousemove', onMouseMove);
 
     return () => {
       slider.removeEventListener('mousedown', onMouseDown);
-      slider.removeEventListener('mouseleave', onMouseLeave);
-      slider.removeEventListener('mouseup', onMouseUp);
-      slider.removeEventListener('mousemove', onMouseMove);
       slider.removeEventListener('dragstart', onDragStart);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mousemove', onMouseMove);
     };
-  }, [currentTab, viewingEventId]);
+  }, [currentTab, viewingEventId, viewingUser, currentUser, isCreatingEvent]);
 
   // Desktop Drag-to-Scroll horizontal utility for events bar
   useEffect(() => {
@@ -1743,7 +2043,7 @@ export default function App() {
       slider.removeEventListener('mousemove', onMouseMove);
       slider.removeEventListener('dragstart', onDragStart);
     };
-  }, [currentTab, viewingEventId]);
+  }, [currentTab, viewingEventId, viewingUser, currentUser]);
 
   const currentEvent = viewingEventId ? events.find(e => e.id === viewingEventId) : null;
 
@@ -2493,7 +2793,7 @@ export default function App() {
                       {/* Dynamic Event list filtered by distance */}
                       {(() => {
                         const filtered = events.filter(evt => {
-                          const dist = getDistanceKm(USER_LOCATION[0], USER_LOCATION[1], evt.lat, evt.lng);
+                          const dist = getDistanceKm(radiusCenter[0], radiusCenter[1], evt.lat, evt.lng);
                           return dist <= captureRadius;
                         });
 
@@ -3143,7 +3443,7 @@ export default function App() {
               {/* 4. Floating Actions Column (Figma bottom-right) */}
               <div className="floating-actions-column-map">
                 <button 
-                  className="map-action-fab"
+                  className={`map-action-fab ${radiusCenter && radiusCenter[0] === USER_LOCATION[0] && radiusCenter[1] === USER_LOCATION[1] ? 'active' : ''}`}
                   onClick={handleLocationClick}
                   title="Centralizar na minha localização"
                 >
@@ -3187,13 +3487,54 @@ export default function App() {
                 <span className="radius-label">Raio de Captura: <strong>{captureRadius}km</strong></span>
                 <input 
                   type="range" 
-                  min="1" 
-                  max="100" 
+                  min="10" 
+                  max="300" 
                   value={captureRadius} 
                   onChange={(e) => setCaptureRadius(Number(e.target.value))} 
                   className="map-radius-slider"
                 />
+                <span className="map-interaction-tip" style={{ fontSize: '9px', color: '#f17522', fontWeight: 'bold', textAlign: 'center', marginTop: '2px', lineHeight: '1.2' }}>
+                  Pressiona 1 segundo na zona onde queres que seja o centro do raio (ou arrasta o alvo)
+                </span>
               </div>
+
+              {/* Onboarding Guide Overlay */}
+              {!hasSeenMapOnboarding && (
+                <div className="map-onboarding-overlay">
+                  <div className="map-onboarding-card">
+                    <div className="map-onboarding-icon">🗺️</div>
+                    <h3 className="map-onboarding-title">Dicas do Mapa</h3>
+                    <p className="map-onboarding-desc">
+                      Descobre como navegar e definir a tua área de pesquisa:
+                    </p>
+                    
+                    <div className="map-onboarding-features">
+                      <div className="map-onboarding-feature">
+                        <span className="feature-icon">⏳</span>
+                        <div>
+                          <strong>Pressiona 1s</strong>
+                          <p>Fica a pressionar num ponto do mapa para definir o centro do raio e evitar cliques acidentais.</p>
+                        </div>
+                      </div>
+                      
+                      <div className="map-onboarding-feature">
+                        <span className="feature-icon">🎯</span>
+                        <div>
+                          <strong>Botão de Localização (GPS)</strong>
+                          <p>1º clique centra o mapa em ti. 2º clique centra o raio na tua localização atual (o botão fica <span style={{color: '#f17522', fontWeight: 'bold'}}>laranja</span>).</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button 
+                      className="map-onboarding-btn" 
+                      onClick={() => setHasSeenMapOnboarding(true)}
+                    >
+                      Entendido
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -3750,16 +4091,16 @@ export default function App() {
               <div className="radius-modal-slider-container">
                 <input 
                   type="range" 
-                  min="1" 
-                  max="100" 
+                  min="10" 
+                  max="300" 
                   value={captureRadius} 
                   onChange={(e) => setCaptureRadius(Number(e.target.value))} 
                   className="modal-radius-slider"
                 />
                 <div className="slider-labels">
-                  <span>1 km</span>
-                  <span>50 km</span>
-                  <span>100 km</span>
+                  <span>10 km</span>
+                  <span>150 km</span>
+                  <span>300 km</span>
                 </div>
               </div>
 
