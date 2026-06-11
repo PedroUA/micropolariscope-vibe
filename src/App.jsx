@@ -2259,14 +2259,42 @@ export default function App() {
                   <h2 className="welcome-title">Olá!</h2>
                   
                   <div className="welcome-logo-large">
-                    <svg width="213" height="208" viewBox="0 0 213 208" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069" stroke="url(#paint0_linear_681_693)" strokeWidth="10.3226" strokeMiterlimit="3.99393"/>
+                    <svg width="213" height="208" viewBox="0 0 213 208" fill="none" xmlns="http://www.w3.org/2000/svg" className="animated-pentagon-logo">
                       <defs>
-                        <linearGradient id="paint0_linear_681_693" x1="106.227" y1="4.06885" x2="106.227" y2="208.241" gradientUnits="userSpaceOnUse">
+                        {/* Mask made of the pentagon lines */}
+                        <mask id="pentagon-lines-mask">
+                          <path 
+                            d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069" 
+                            stroke="white" 
+                            strokeWidth="10.3226" 
+                            strokeMiterlimit="3.99393"
+                          />
+                        </mask>
+                        
+                        {/* Gradient color Definition */}
+                        <linearGradient id="logo-gradient" x1="106.227" y1="4.06885" x2="106.227" y2="208.241" gradientUnits="userSpaceOnUse">
                           <stop stopColor="#F77E1A"/>
                           <stop offset="1" stopColor="#F7AD1A"/>
                         </linearGradient>
                       </defs>
+                      
+                      {/* Stacked image layers clipped to the pentagon lines */}
+                      <g mask="url(#pentagon-lines-mask)">
+                        <rect width="213" height="208" fill="#e2e8f0" />
+                        <image href="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-1" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
+                        <image href="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-2" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
+                        <image href="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-3" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
+                        <image href="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-4" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
+                      </g>
+                      
+                      {/* Gradient outline lines overlay */}
+                      <path 
+                        className="pentagon-gradient-path"
+                        d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069" 
+                        stroke="url(#logo-gradient)" 
+                        strokeWidth="10.3226" 
+                        strokeMiterlimit="3.99393"
+                      />
                     </svg>
                   </div>
 
