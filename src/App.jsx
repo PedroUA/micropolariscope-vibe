@@ -3508,7 +3508,7 @@ export default function App() {
                   
                   {/* Version badge */}
                   <div className="prototype-version-badge" style={{ fontSize: '10px', color: '#94a3b8', marginTop: '16px', fontWeight: '500', fontFamily: 'var(--font-family)', letterSpacing: '0.5px' }}>
-                    Protótipo v1.1.a
+                    Protótipo v1.2.a
                   </div>
                 </div>
 
@@ -5979,7 +5979,7 @@ export default function App() {
 
                 {/* Version badge inside settings */}
                 <div className="settings-version-badge" style={{ fontSize: '10px', color: '#94a3b8', marginTop: '20px', marginBottom: '8px', textAlign: 'center', fontWeight: '500', fontFamily: 'var(--font-family)', letterSpacing: '0.5px', width: '100%' }}>
-                  Protótipo v1.1.a
+                  Protótipo v1.2.a
                 </div>
               </div>
             </div>
