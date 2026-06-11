@@ -2259,7 +2259,25 @@ export default function App() {
       });
     }
 
-    // Refresh markers whenever events or map changes
+    return () => {
+      if (mapContainer && onTouchStart) {
+        mapContainer.removeEventListener('touchstart', onTouchStart);
+        mapContainer.removeEventListener('touchmove', onTouchMove);
+        mapContainer.removeEventListener('touchend', onTouchEnd);
+        mapContainer.removeEventListener('touchcancel', onTouchEnd);
+      }
+      // Cleanup map instance if tab unmounts
+      if (currentTab !== 'map' && mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+        radiusCircleRef.current = null;
+        radiusCenterMarkerRef.current = null;
+      }
+    };
+  }, [currentTab, mapStyle]);
+
+  // Refresh markers whenever events or search query changes
+  useEffect(() => {
     if (currentTab === 'map' && mapInstanceRef.current) {
       const activeMap = mapInstanceRef.current;
 
@@ -2328,21 +2346,6 @@ export default function App() {
       });
     }
 
-    return () => {
-      if (mapContainer && onTouchStart) {
-        mapContainer.removeEventListener('touchstart', onTouchStart);
-        mapContainer.removeEventListener('touchmove', onTouchMove);
-        mapContainer.removeEventListener('touchend', onTouchEnd);
-        mapContainer.removeEventListener('touchcancel', onTouchEnd);
-      }
-      // Cleanup map instance if tab unmounts
-      if (currentTab !== 'map' && mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-        radiusCircleRef.current = null;
-        radiusCenterMarkerRef.current = null;
-      }
-    };
   }, [currentTab, events, mapSearchQuery]);
 
   // Update capture radius circle dynamically
