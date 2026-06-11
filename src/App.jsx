@@ -1499,7 +1499,7 @@ export default function App() {
   const [newEventDesc, setNewEventDesc] = useState('');
   const [newEventImg, setNewEventImg] = useState(STOCK_IMAGES[0].url);
   const [customEventImg, setCustomEventImg] = useState(null);
-  const [newEventDate, setNewEventDate] = useState('Hoje, 20:00 - 23:00');
+  const [newEventDate, setNewEventDate] = useState('Hoje, 12:00');
   const [newEventLocation, setNewEventLocation] = useState('');
 
   // Comment Input State
@@ -1525,7 +1525,265 @@ export default function App() {
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
   const [registerAccountType, setRegisterAccountType] = useState('Pessoal'); // 'Pessoal' | 'Organização'
   const [registerError, setRegisterError] = useState('');
-  const [registerAvatar, setRegisterAvatar] = useState('/assets/profile.svg');
+  // DateTimePicker State
+  const [isDateTimePickerOpen, setIsDateTimePickerOpen] = useState(false);
+  const [pickerTab, setPickerTab] = useState('date'); // 'date' | 'time'
+  const [selectedDate, setSelectedDate] = useState(new Date(2026, 5, 11)); // June 11, 2026 as shown in screenshot
+  const [selectedHour, setSelectedHour] = useState(12);
+  const [selectedMinute, setSelectedMinute] = useState(0);
+  const [isAllDay, setIsAllDay] = useState(false);
+  const [currentPickerMonth, setCurrentPickerMonth] = useState(5); // June
+  const [currentPickerYear, setCurrentPickerYear] = useState(2026);
+
+  // DateTimePicker helper functions
+  const daysInMonth = (year, month) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
+  const startDayOfWeek = (year, month) => {
+    return new Date(year, month, 1).getDay();
+  };
+
+  const confirmDateTimeSelection = () => {
+    const formattedHour = selectedHour.toString().padStart(2, '0');
+    const formattedMinute = selectedMinute.toString().padStart(2, '0');
+    
+    const isToday = selectedDate.getDate() === 11 && selectedDate.getMonth() === 5 && selectedDate.getFullYear() === 2026;
+    
+    let dateStr = '';
+    if (isToday) {
+      dateStr = 'Hoje';
+    } else {
+      const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      dateStr = `${selectedDate.getDate()} de ${months[selectedDate.getMonth()]}`;
+    }
+    
+    const timeStr = isAllDay ? 'Todo o dia' : `${formattedHour}:${formattedMinute}`;
+    setNewEventDate(`${dateStr}, ${timeStr}`);
+    setIsDateTimePickerOpen(false);
+  };
+
+  const formatDateLabel = (date) => {
+    const monthsShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const isToday = date.getDate() === 11 && date.getMonth() === 5 && date.getFullYear() === 2026;
+    if (isToday) return 'Hoje';
+    return `${date.getDate()} ${monthsShort[date.getMonth()]}`;
+  };
+
+  const formatTimeLabel = (h, m) => {
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    if (isDateTimePickerOpen && pickerTab === 'time' && !isAllDay) {
+      setTimeout(() => {
+        const itemHeight = 40;
+        if (hourScrollRef.current) {
+          hourScrollRef.current.scrollTop = (selectedHour + 48) * itemHeight;
+        }
+        if (minuteScrollRef.current) {
+          const minutesArray = getMinutesRange();
+          const minuteIndex = minutesArray.indexOf(selectedMinute);
+          if (minuteIndex !== -1) {
+            minuteScrollRef.current.scrollTop = (minuteIndex + minutesArray.length * 2) * itemHeight;
+          }
+        }
+      }, 50);
+    }
+  }, [isDateTimePickerOpen, pickerTab, isAllDay]);
+
+  const handleHoursScroll = (e) => {
+    const container = e.target;
+    const itemHeight = 40;
+    const scrollTop = container.scrollTop;
+    const cycleHeight = 24 * itemHeight;
+
+    if (scrollTop < cycleHeight * 1.5) {
+      container.scrollTop += cycleHeight;
+      return;
+    } else if (scrollTop > cycleHeight * 3.5) {
+      container.scrollTop -= cycleHeight;
+      return;
+    }
+
+    const calculatedHour = Math.round((scrollTop - cycleHeight * 2) / itemHeight) % 24;
+    const hour = (calculatedHour + 24) % 24;
+    
+    if (selectedHour !== hour) {
+      setSelectedHour(hour);
+    }
+  };
+
+  const handleMinutesScroll = (e) => {
+    const container = e.target;
+    const itemHeight = 40;
+    const scrollTop = container.scrollTop;
+    const minutesArray = getMinutesRange();
+    const len = minutesArray.length;
+    const cycleHeight = len * itemHeight;
+
+    if (scrollTop < cycleHeight * 1.5) {
+      container.scrollTop += cycleHeight;
+      return;
+    } else if (scrollTop > cycleHeight * 3.5) {
+      container.scrollTop -= cycleHeight;
+      return;
+    }
+
+    const calculatedIndex = Math.round((scrollTop - cycleHeight * 2) / itemHeight) % len;
+    const index = (calculatedIndex + len) % len;
+    const minute = minutesArray[index];
+
+    if (selectedMinute !== minute) {
+      setSelectedMinute(minute);
+    }
+  };
+
+  const renderHoursList = () => {
+    const hours = getHoursRange();
+    const quintupleHours = [...hours, ...hours, ...hours, ...hours, ...hours];
+    return quintupleHours.map((h, i) => {
+      const isSelected = selectedHour === h;
+      return (
+        <div 
+          key={`h-${i}`} 
+          className={`time-wheel-item ${isSelected ? 'active' : ''}`}
+          onClick={(e) => {
+            setSelectedHour(h);
+            const container = e.currentTarget.parentElement.parentElement;
+            const itemHeight = 40;
+            const cycleIndex = i % 24;
+            container.scrollTop = (cycleIndex + 48) * itemHeight;
+          }}
+        >
+          {h.toString().padStart(2, '0')}
+        </div>
+      );
+    });
+  };
+
+  const renderMinutesList = () => {
+    const minutes = getMinutesRange();
+    const len = minutes.length;
+    const quintupleMinutes = [...minutes, ...minutes, ...minutes, ...minutes, ...minutes];
+    return quintupleMinutes.map((m, i) => {
+      const isSelected = selectedMinute === m;
+      return (
+        <div 
+          key={`m-${i}`} 
+          className={`time-wheel-item ${isSelected ? 'active' : ''}`}
+          onClick={(e) => {
+            setSelectedMinute(m);
+            const container = e.currentTarget.parentElement.parentElement;
+            const itemHeight = 40;
+            const cycleIndex = i % len;
+            container.scrollTop = (cycleIndex + len * 2) * itemHeight;
+          }}
+        >
+          {m.toString().padStart(2, '0')}
+        </div>
+      );
+    });
+  };
+
+  const getMonthYearLabel = (month, year) => {
+    const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    return `${months[month]} de ${year}`;
+  };
+
+  const prevMonth = () => {
+    if (currentPickerMonth === 0) {
+      setCurrentPickerMonth(11);
+      setCurrentPickerYear(currentPickerYear - 1);
+    } else {
+      setCurrentPickerMonth(currentPickerMonth - 1);
+    }
+  };
+
+  const nextMonth = () => {
+    if (currentPickerMonth === 11) {
+      setCurrentPickerMonth(0);
+      setCurrentPickerYear(currentPickerYear + 1);
+    } else {
+      setCurrentPickerMonth(currentPickerMonth + 1);
+    }
+  };
+
+  const getHoursRange = () => {
+    return Array.from({ length: 24 }, (_, i) => i);
+  };
+
+  const getMinutesRange = () => {
+    return Array.from({ length: 12 }, (_, i) => i * 5);
+  };
+
+  const addHoursToCurrent = (h) => {
+    const newHour = (selectedHour + h) % 24;
+    setSelectedHour(newHour);
+    const itemHeight = 40;
+    if (hourScrollRef.current) {
+      hourScrollRef.current.scrollTop = (newHour + 48) * itemHeight;
+    }
+  };
+
+  const setSpecificTime = (h, m) => {
+    setSelectedHour(h);
+    setSelectedMinute(m);
+    const itemHeight = 40;
+    if (hourScrollRef.current) {
+      hourScrollRef.current.scrollTop = (h + 48) * itemHeight;
+    }
+    if (minuteScrollRef.current) {
+      const minutesArray = getMinutesRange();
+      const minuteIndex = minutesArray.indexOf(m);
+      if (minuteIndex !== -1) {
+        minuteScrollRef.current.scrollTop = (minuteIndex + minutesArray.length * 2) * itemHeight;
+      }
+    }
+  };
+
+  const renderCalendarDays = () => {
+    const totalDays = daysInMonth(currentPickerYear, currentPickerMonth);
+    const startDay = startDayOfWeek(currentPickerYear, currentPickerMonth);
+    
+    const prevMonthDays = daysInMonth(currentPickerYear, currentPickerMonth - 1);
+    const cells = [];
+    
+    for (let i = startDay - 1; i >= 0; i--) {
+      const dayNum = prevMonthDays - i;
+      cells.push(
+        <span key={`prev-${dayNum}`} className="calendar-day-cell sibling-month">
+          {dayNum}
+        </span>
+      );
+    }
+    
+    for (let d = 1; d <= totalDays; d++) {
+      const isSelected = selectedDate.getDate() === d && 
+                         selectedDate.getMonth() === currentPickerMonth && 
+                         selectedDate.getFullYear() === currentPickerYear;
+      
+      cells.push(
+        <span 
+          key={`day-${d}`} 
+          className={`calendar-day-cell ${isSelected ? 'selected' : ''}`}
+          onClick={() => setSelectedDate(new Date(currentPickerYear, currentPickerMonth, d))}
+        >
+          {d}
+        </span>
+      );
+    }
+    
+    const remaining = 42 - cells.length;
+    for (let n = 1; n <= remaining; n++) {
+      cells.push(
+        <span key={`next-${n}`} className="calendar-day-cell sibling-month">
+          {n}
+        </span>
+      );
+    }
+    
+    return cells;
+  };
 
   // Preload key images in the background on mount
   useEffect(() => {
@@ -1658,6 +1916,8 @@ export default function App() {
   const fileInputRef = useRef(null);
   const eventFileInputRef = useRef(null);
   const profileAvatarInputRef = useRef(null);
+  const hourScrollRef = useRef(null);
+  const minuteScrollRef = useRef(null);
 
   // --- FIGMA SCREEN 571:948 STATES & ACTIONS ---
   const USER_LOCATION = [40.6312, -8.6575]; // University of Aveiro coordinates for testing
@@ -1682,21 +1942,51 @@ export default function App() {
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const isNativeFull = !!(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      );
+      setIsFullscreen(isNativeFull);
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
   }, []);
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.error(`Error entering fullscreen: ${err.message}`);
-      });
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
+    const hasRequestFullscreen = typeof document.documentElement.requestFullscreen === 'function';
+    const hasWebkitRequestFullscreen = typeof document.documentElement.webkitRequestFullscreen === 'function';
+
+    if (hasRequestFullscreen) {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error(`Error entering fullscreen: ${err.message}`);
+          setIsFullscreen(true);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
       }
+    } else if (hasWebkitRequestFullscreen) {
+      if (!document.webkitFullscreenElement) {
+        document.documentElement.webkitRequestFullscreen();
+      } else {
+        if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    } else {
+      setIsFullscreen(prev => !prev);
     }
   };
 
@@ -2176,10 +2466,18 @@ export default function App() {
       
       // Auto re-enter fullscreen if the browser exited it during the system permission prompt
       setTimeout(() => {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(err => {
-            console.log("Could not re-enter fullscreen after camera started: ", err);
-          });
+        const hasRequestFullscreen = typeof document.documentElement.requestFullscreen === 'function';
+        const hasWebkitRequestFullscreen = typeof document.documentElement.webkitRequestFullscreen === 'function';
+        const isCurrentlyFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+        if (!isCurrentlyFull) {
+          if (hasRequestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+              console.log("Could not re-enter fullscreen after camera started: ", err);
+            });
+          } else if (hasWebkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
+          }
         }
       }, 500);
     } catch (err) {
@@ -2866,7 +3164,7 @@ export default function App() {
       detailImage: newEventImg,
       lat: randomLat,
       lng: randomLng,
-      date: newEventDate || 'Hoje, 20:00 - 23:00',
+      date: newEventDate || 'Hoje, 12:00',
       location: newEventLocation || 'Aveiro, Portugal',
       subtitle: newEventDesc || 'Novo evento adicionado à comunidade!',
       organizerLabel: currentUser ? currentUser.name : 'A Minha Organização',
@@ -2885,7 +3183,7 @@ export default function App() {
     // Reset Form
     setNewEventTitle('');
     setNewEventDesc('');
-    setNewEventDate('Hoje, 20:00 - 23:00');
+    setNewEventDate('Hoje, 12:00');
     setNewEventLocation('');
     setIsCreatingEvent(false);
 
@@ -3076,7 +3374,7 @@ export default function App() {
   const currentEvent = viewingEventId ? events.find(e => e.id === viewingEventId) : null;
 
   return (
-    <div className="phone-shell">
+    <div className={`phone-shell ${isFullscreen ? 'fullscreen-active' : ''}`}>
       <div className="app-viewport">
         <input 
           type="file" 
@@ -4647,17 +4945,6 @@ export default function App() {
                   value={mapSearchQuery}
                   onChange={(e) => setMapSearchQuery(e.target.value)}
                 />
-                <button 
-                  className={`search-mic-btn ${isMapRecording ? 'recording' : ''}`} 
-                  onClick={handleVoiceSearch}
-                  aria-label="Pesquisar por voz"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-                    <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
-                    <line x1="12" x2="12" y1="19" y2="22"/>
-                  </svg>
-                </button>
               </div>
 
               {/* 4. Floating Actions Column (Figma bottom-right) */}
@@ -4997,7 +5284,6 @@ export default function App() {
                       className="expanded-moment-action-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setExpandedMomentId(null);
                         setActiveCommentsMomentId(m.id);
                       }}
                       style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
@@ -5008,26 +5294,23 @@ export default function App() {
                       <span style={{ fontWeight: '700' }}>{m.comments.length}</span>
                     </button>
 
-                    {currentUser && (
-                      <button 
-                        className={`expanded-moment-action-btn ${savedMoments.includes(m.id) ? 'saved' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSaveMoment(m.id);
-                        }}
-                        style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
-                      >
-                        <svg viewBox="0 0 24 24" fill={savedMoments.includes(m.id) ? "#f17522" : "none"} style={{ stroke: '#f17522', strokeWidth: '2.5', width: '20px', height: '20px' }}>
-                          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                      </button>
-                    )}
+                    <button 
+                      className={`expanded-moment-action-btn ${savedMoments.includes(m.id) ? 'saved' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSaveMoment(m.id);
+                      }}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
+                    >
+                      <svg viewBox="0 0 24 24" fill={savedMoments.includes(m.id) ? "#f17522" : "none"} style={{ stroke: '#f17522', strokeWidth: '2.5', width: '20px', height: '20px' }}>
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                    </button>
 
                     <button 
                       className="expanded-moment-action-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setExpandedMomentId(null);
                         handleShareMomentClick(m);
                       }}
                       style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
@@ -5100,14 +5383,22 @@ export default function App() {
 
                 <div className="form-group">
                   <label className="form-label">Data e Hora do Evento</label>
-                  <input 
-                    type="text" 
-                    placeholder="Ex: Sábado, 15:00 - 18:00" 
-                    className="form-input"
-                    value={newEventDate}
-                    onChange={(e) => setNewEventDate(e.target.value)}
-                    required
-                  />
+                  <button 
+                    type="button"
+                    className="form-input-clickable"
+                    onClick={() => {
+                      setPickerTab('date');
+                      setIsDateTimePickerOpen(true);
+                    }}
+                  >
+                    <span>{newEventDate || 'Selecionar Data e Hora'}</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  </button>
                 </div>
 
                 <div className="form-group">
@@ -5174,9 +5465,136 @@ export default function App() {
           </div>
         )}
 
+        {/* --- DATE TIME PICKER MODAL --- */}
+        {isDateTimePickerOpen && (
+          <div className="datetime-picker-overlay" onClick={() => setIsDateTimePickerOpen(false)}>
+            <div className="datetime-picker-modal" onClick={e => e.stopPropagation()}>
+              <div className="datetime-picker-header">
+                <div className="datetime-picker-title-row">
+                  <span className="datetime-picker-title-text">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    Data e Hora
+                  </span>
+                  <button type="button" className="datetime-picker-close-btn" onClick={() => setIsDateTimePickerOpen(false)}>
+                    ✕
+                  </button>
+                </div>
+
+                <div className="datetime-picker-tabs">
+                  <button 
+                    type="button"
+                    className={`datetime-tab ${pickerTab === 'date' ? 'active' : ''}`}
+                    onClick={() => setPickerTab('date')}
+                  >
+                    {formatDateLabel(selectedDate)}
+                  </button>
+                  <span className="datetime-tab-divider">|</span>
+                  <button 
+                    type="button"
+                    className={`datetime-tab ${pickerTab === 'time' ? 'active' : ''}`}
+                    onClick={() => setPickerTab('time')}
+                  >
+                    {isAllDay ? 'Todo o dia' : formatTimeLabel(selectedHour, selectedMinute)}
+                  </button>
+                </div>
+              </div>
+
+              <div className="datetime-picker-content">
+                {pickerTab === 'date' ? (
+                  <div className="calendar-view">
+                    <div className="calendar-month-selector">
+                      <button type="button" className="cal-nav-btn" onClick={prevMonth}>&lt;</button>
+                      <span className="cal-month-label">{getMonthYearLabel(currentPickerMonth, currentPickerYear)}</span>
+                      <button type="button" className="cal-nav-btn" onClick={nextMonth}>&gt;</button>
+                    </div>
+                    <div className="calendar-weekdays">
+                      <span>DOM</span>
+                      <span>SEG</span>
+                      <span>TER</span>
+                      <span>QUA</span>
+                      <span>QUI</span>
+                      <span>SEX</span>
+                      <span>SÁB</span>
+                    </div>
+                    <div className="calendar-days-grid">
+                      {renderCalendarDays()}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="time-picker-view">
+                    <div className="all-day-toggle-row">
+                      <span className="toggle-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px', verticalAlign: 'middle' }}>
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Todo o dia
+                      </span>
+                      <label className="switch">
+                        <input 
+                          type="checkbox" 
+                          checked={isAllDay} 
+                          onChange={e => setIsAllDay(e.target.checked)} 
+                        />
+                        <span className="slider round"></span>
+                      </label>
+                    </div>
+
+                    {!isAllDay && (
+                      <>
+                        <div className="time-wheel-container">
+                          {/* Hours column */}
+                          <div 
+                            ref={hourScrollRef} 
+                            className="time-wheel-col"
+                            onScroll={handleHoursScroll}
+                          >
+                            <div className="time-wheel-scroll">
+                              {renderHoursList()}
+                            </div>
+                          </div>
+                          <div className="time-wheel-colon">:</div>
+                          {/* Minutes column */}
+                          <div 
+                            ref={minuteScrollRef} 
+                            className="time-wheel-col"
+                            onScroll={handleMinutesScroll}
+                          >
+                            <div className="time-wheel-scroll">
+                              {renderMinutesList()}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="quick-time-chips">
+                          <button type="button" onClick={() => addHoursToCurrent(1)}>Daqui a 1 hora</button>
+                          <button type="button" onClick={() => setSpecificTime(7, 0)}>07:00</button>
+                          <button type="button" onClick={() => setSpecificTime(15, 0)}>15:00</button>
+                          <button type="button" onClick={() => setSpecificTime(22, 0)}>22:00</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="datetime-picker-footer">
+                <button type="button" className="datetime-picker-confirm-btn" onClick={confirmDateTimeSelection}>
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* --- BOTTOM SHEET: COMMENTS SECTION --- */}
         {activeCommentsMomentId && activeCommentsMoment && (
-          <div className="bottom-sheet-overlay" onClick={() => setActiveCommentsMomentId(null)}>
+          <div className="bottom-sheet-overlay" onClick={() => setActiveCommentsMomentId(null)} style={{ zIndex: 2500 }}>
             <div className="bottom-sheet" onClick={(e) => e.stopPropagation()}>
               <div className="bottom-sheet-drag-handle"></div>
               
@@ -5231,7 +5649,7 @@ export default function App() {
 
         {/* --- BOTTOM SHEET: SHARING SHEET (Figma Match 571:1027) --- */}
         {isSharingSheetOpen && (
-          <div className="bottom-sheet-overlay" onClick={() => setIsSharingSheetOpen(false)}>
+          <div className="bottom-sheet-overlay" onClick={() => setIsSharingSheetOpen(false)} style={{ zIndex: 2500 }}>
             <div className="sharing-bottom-sheet" onClick={(e) => e.stopPropagation()}>
               <div className="sharing-sheet-drag-handle" onClick={() => setIsSharingSheetOpen(false)}>
                 <svg width="22" height="10" viewBox="0 0 22 10" fill="none" xmlns="http://www.w3.org/2000/svg">
