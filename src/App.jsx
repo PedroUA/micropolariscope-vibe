@@ -857,7 +857,8 @@ export default function App() {
       // Initialize map centered at Aveiro
       map = L.map(mapContainerRef.current, {
         zoomControl: false,
-        attributionControl: false
+        attributionControl: false,
+        tap: false
       }).setView([40.6425, -8.6430], 14);
 
       mapInstanceRef.current = map;
