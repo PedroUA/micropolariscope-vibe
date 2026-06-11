@@ -2116,6 +2116,15 @@ body {
   font-family: var(--font-family);
 }
 
+.event-detail-meta-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
 .event-detail-date-row {
   display: flex;
   align-items: center;
@@ -2127,7 +2136,20 @@ body {
   background-color: rgba(241, 117, 34, 0.08);
   padding: 4px 10px;
   border-radius: 8px;
-  margin-bottom: 8px;
+  font-family: var(--font-family);
+}
+
+.event-detail-location-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--primary);
+  background-color: rgba(241, 117, 34, 0.08);
+  padding: 4px 10px;
+  border-radius: 8px;
   font-family: var(--font-family);
 }
 

@@ -54,13 +54,14 @@ export default function App() {
       image: '/assets/hardbar_thumb.png',
       logo: '/assets/hardbar_avatar.png',
       live: false,
+      location: 'Bustos',
       description: 'Concerto incrível com o artista Marcvs Marçal! Uma noite inesquecível de música ao vivo no melhor bar da zona.',
       detailImage: '/assets/hardbar_photo.png',
       lat: 40.6413,
       lng: -8.6433,
       date: 'Hoje, 21:30 - 02:00',
       subtitle: 'Noites animadas com música ao vivo e muitos hambúrgueres.',
-      organizerLabel: 'HardBar Organização',
+      organizerLabel: 'HardBar',
       organizerLogo: '/assets/hardbar_avatar.png',
       banner: '/assets/hardbar_photo.png',
       badgeColor: '#f17522'
@@ -72,13 +73,14 @@ export default function App() {
       image: '/assets/quiz_photo.png',
       logo: '/assets/hardbar_avatar.png',
       live: false,
+      location: 'Bustos',
       description: 'Diverte-te com a nossa noite de Quiz super divertida! Junta a tua equipa, testa a tua cultura geral e ganha prémios fantásticos.',
       detailImage: '/assets/quiz_photo.png',
       lat: 40.6405,
       lng: -8.6445,
       date: 'Terça-feira, 21:30 - 23:30',
       subtitle: 'Noites de Quiz super divertidas! Junta a tua equipa e vem testar a tua cultura geral.',
-      organizerLabel: 'HardBar Organização',
+      organizerLabel: 'HardBar',
       organizerLogo: '/assets/hardbar_avatar.png',
       banner: '/assets/quiz_photo.png',
       badgeColor: '#f17522'
@@ -90,13 +92,14 @@ export default function App() {
       image: '/assets/cicloturismo_thumb.png',
       logo: '/assets/aee_avatar.png',
       live: true,
+      location: 'Esgueira, Aveiro',
       description: 'Passeio anual de cicloturismo. Venha pedalar connosco e promover a saúde e a mobilidade sustentável!',
       detailImage: '/assets/aee_photo.png',
       lat: 40.6514,
       lng: -8.6291,
       date: 'Domingo, 09:00 - 13:00',
       subtitle: 'Passeio anual de cicloturismo de Esgueira. Traz a tua bicicleta!',
-      organizerLabel: 'AEE Organização',
+      organizerLabel: 'AEE',
       organizerLogo: '/assets/aee_avatar.png',
       banner: '/assets/aee_photo.png'
     },
@@ -107,13 +110,14 @@ export default function App() {
       image: '/assets/tricot_thumb.png',
       logo: '/assets/profile.svg', // Default profile logo
       live: false,
+      location: 'Parque Infante D. Pedro, Aveiro',
       description: 'Junte-se a nós todas as quintas-feiras às 18h no café do parque para tricotar, conversar e trocar experiências!',
       detailImage: '/assets/tricot_thumb.png',
       lat: 40.6385,
       lng: -8.6512,
       date: 'Quinta-feira, 18:00 - 20:00',
       subtitle: 'Junta-te a nós todas as quintas-feiras às 18h no café do parque.',
-      organizerLabel: 'Tricot Aveiro Organização',
+      organizerLabel: 'Tricot Aveiro',
       organizerLogo: '/assets/profile.svg',
       banner: '/assets/tricot_thumb.png'
     },
@@ -124,7 +128,8 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=150&auto=format&fit=crop&q=60',
       logo: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=80&auto=format&fit=crop&q=60',
       live: false,
-      description: 'Vem aprender a fazer o doce mais tradicional de Aveiro! Uma experiência prática onde crias os teus próprios Ovos Moles em moldes clássicos.',
+      location: 'Oficina do Doce, Aveiro',
+      description: 'Vem aprender a fazer o doce mais tradicional de Aveiro! Uma experiência prática onde crias os teus próprios Ovos Moles in moldes clássicos.',
       detailImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
       lat: 40.6445,
       lng: -8.6492,
@@ -141,6 +146,7 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=150&auto=format&fit=crop&q=60',
       logo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=80&auto=format&fit=crop&q=60',
       live: true,
+      location: 'Praia da Barra, Ílhavo',
       description: 'Sessão de surf ao fim da tarde na Praia da Barra. Ondas excelentes e convívio garantido no final do dia com um sunset acústico.',
       detailImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80',
       lat: 40.6420,
@@ -158,13 +164,14 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=150&auto=format&fit=crop&q=60',
       logo: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=80&auto=format&fit=crop&q=60',
       live: false,
+      location: 'Parque Infante D. Pedro, Aveiro',
       description: 'Um concerto ao ar livre sob a sombra das árvores do parque mais bonito de Aveiro. Traz a tua manta de piquenique e desfruta de excelente música.',
       detailImage: 'https://images.unsplash.com/photo-1486591978090-58e619d37fe7?w=600&auto=format&fit=crop&q=80',
       lat: 40.6368,
       lng: -8.6475,
       date: 'Domingo, 16:00 - 19:00',
       subtitle: 'Música ao vivo e piquenique no parque da cidade. Entrada livre.',
-      organizerLabel: 'Aveiro Jazz Organização',
+      organizerLabel: 'Aveiro Jazz',
       organizerLogo: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=80&auto=format&fit=crop&q=60',
       banner: 'https://images.unsplash.com/photo-1486591978090-58e619d37fe7?w=600&auto=format&fit=crop&q=80'
     },
@@ -175,6 +182,7 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=150&auto=format&fit=crop&q=60',
       logo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=60',
       live: false,
+      location: 'Praça da República, Aveiro',
       description: 'Mercado de design, ilustrações, cerâmica e artesanato urbano. Vem apoiar os artistas locais e encontrar peças únicas feitas à mão.',
       detailImage: 'https://images.unsplash.com/photo-1531058020387-3be344559be6?w=600&auto=format&fit=crop&q=80',
       lat: 40.6439,
@@ -192,6 +200,7 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=150&auto=format&fit=crop&q=60',
       logo: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=80&auto=format&fit=crop&q=60',
       live: true,
+      location: 'Aveiro Padel Club',
       description: 'Fase final do torneio de Padel no clube da Ria. Vem ver as melhores duplas em campo e desfrutar do ambiente festivo com street food.',
       detailImage: 'https://images.unsplash.com/photo-1545809074-59472b3f5ecc?w=600&auto=format&fit=crop&q=80',
       lat: 40.6505,
@@ -209,6 +218,7 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=150&auto=format&fit=crop&q=60',
       logo: '/assets/profile.svg',
       live: false,
+      location: 'Foz do Douro, Porto',
       description: 'Convívio gastronómico à beira-rio. Vem saborear as melhores francesinhas com molho caseiro tradicional e batata frita estaladiça na Foz do Douro.',
       detailImage: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&auto=format&fit=crop&q=80',
       lat: 41.1579,
@@ -226,6 +236,7 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=150&auto=format&fit=crop&q=60',
       logo: '/assets/profile.svg',
       live: false,
+      location: 'Penedo da Saudade, Coimbra',
       description: 'Uma noite especial de fados de Coimbra ao luar, interpretada por estudantes e antigos estudantes universitários com trajes tradicionais.',
       detailImage: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&auto=format&fit=crop&q=80',
       lat: 40.2075,
@@ -243,13 +254,14 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=150&auto=format&fit=crop&q=60',
       logo: '/assets/profile.svg',
       live: true,
+      location: 'Canais de Aveiro',
       description: 'Descobre a beleza da ria a bordo de um moliceiro tradicional, acompanhado por espumante da Bairrada e os clássicos ovos moles de Aveiro.',
       detailImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80',
       lat: 40.6433,
       lng: -8.6534,
       date: 'Hoje, 19:30 - 21:00',
       subtitle: 'Navega pelos canais urbanos num passeio romântico ao entardecer.',
-      organizerLabel: 'Ria Tours Organização',
+      organizerLabel: 'Ria Tours',
       organizerLogo: '/assets/profile.svg',
       banner: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80'
     },
@@ -260,6 +272,7 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=150&auto=format&fit=crop&q=60',
       logo: '/assets/profile.svg',
       live: false,
+      location: 'Jardim Henriqueta Maia, Ílhavo',
       description: 'Showcookings com chefs nacionais, provas gastronómicas, artesanato local e concertos ao vivo no Jardim Henriqueta Maia.',
       detailImage: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop&q=80',
       lat: 40.6080,
@@ -277,13 +290,14 @@ export default function App() {
       image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=150&auto=format&fit=crop&q=60',
       logo: '/assets/profile.svg',
       live: false,
+      location: 'Rossio, Viseu',
       description: 'A feira franca mais antiga da Península Ibérica. Diversões, gastronomia regional, exposições de artesanato e grandes concertos musicais.',
       detailImage: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&auto=format&fit=crop&q=80',
       lat: 40.6575,
       lng: -7.9135,
       date: 'De 10 de Agosto a 21 de Setembro',
       subtitle: 'A feira de todas as feiras no coração de Viseu.',
-      organizerLabel: 'Viseu Marca Organização',
+      organizerLabel: 'Viseu Marca',
       organizerLogo: '/assets/profile.svg',
       banner: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&auto=format&fit=crop&q=80'
     }
@@ -1932,7 +1946,7 @@ export default function App() {
       date: newEventDate || 'Hoje, 20:00 - 23:00',
       location: newEventLocation || 'Aveiro, Portugal',
       subtitle: newEventDesc || 'Novo evento adicionado à comunidade!',
-      organizerLabel: currentUser ? `${currentUser.name} Organização` : 'A Minha Organização',
+      organizerLabel: currentUser ? currentUser.name : 'A Minha Organização',
       organizerLogo: currentUser ? currentUser.avatar : '/assets/profile.svg',
       banner: newEventImg
     };
@@ -2773,15 +2787,27 @@ export default function App() {
                     </div>
                     <p className="event-detail-subtitle">{currentEvent.subtitle || currentEvent.description}</p>
                     
-                    {/* Date Row (inicio e fim) */}
-                    <div className="event-detail-date-row">
-                      <svg className="icon-calendar" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                      </svg>
-                      <span>{currentEvent.date || 'Hoje, 20:00 - 23:00'}</span>
+                    {/* Meta Info (Location & Date) */}
+                    <div className="event-detail-meta-container">
+                      {currentEvent.location && (
+                        <div className="event-detail-location-row">
+                          <svg className="icon-map-pin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                          </svg>
+                          <span>{currentEvent.location}</span>
+                        </div>
+                      )}
+
+                      <div className="event-detail-date-row">
+                        <svg className="icon-calendar" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="16" y1="2" x2="16" y2="6"></line>
+                          <line x1="8" y1="2" x2="8" y2="6"></line>
+                          <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>{currentEvent.date || 'Hoje, 20:00 - 23:00'}</span>
+                      </div>
                     </div>
 
                     {/* Creator Identification (Inline below Date) */}
@@ -2813,7 +2839,12 @@ export default function App() {
                       <button 
                         className="event-detail-momentos-btn"
                         onClick={() => {
-                          setActiveStoryEventId(currentEvent.id);
+                          const eventMoments = moments.filter(m => m.eventId === currentEvent.id);
+                          if (eventMoments.length > 0) {
+                            setExpandedMomentId(eventMoments[0].id);
+                          } else {
+                            showToast("Ainda não há momentos partilhados para este evento.");
+                          }
                         }}
                       >
                         Momentos
@@ -2912,7 +2943,26 @@ export default function App() {
 
                   {/* Feed of Moments */}
                   <section className="moments-feed">
-                    {moments.map(m => (
+                    {(() => {
+                      const eventsWithinRadiusIds = events
+                        .filter(evt => {
+                          const dist = getDistanceKm(radiusCenter[0], radiusCenter[1], evt.lat, evt.lng);
+                          return dist <= captureRadius;
+                        })
+                        .map(evt => evt.id);
+
+                      const filteredMoments = moments.filter(m => eventsWithinRadiusIds.includes(m.eventId));
+
+                      if (filteredMoments.length === 0) {
+                        return (
+                          <div className="no-moments-in-radius-message" style={{ textAlign: 'center', padding: '40px 20px', color: '#888', background: 'rgba(255,255,255,0.05)', borderRadius: '16px', margin: '10px 0 30px 0' }}>
+                            <p style={{ fontWeight: '600', fontSize: '14px', margin: '0 0 4px 0' }}>Sem momentos no raio de {captureRadius}km</p>
+                            <p style={{ fontSize: '12px', margin: 0 }}>Tenta aumentar o raio ou reposicionar o centro da pesquisa.</p>
+                          </div>
+                        );
+                      }
+
+                      return filteredMoments.map(m => (
                       <article key={m.id} className="moment-card">
                         {/* User profile row */}
                         <div className="moment-author-bar">
@@ -3033,7 +3083,8 @@ export default function App() {
                           </div>
                         </div>
                       </article>
-                    ))}
+                      ));
+                    })()}
                   </section>
                 </>
               )}
