@@ -785,6 +785,28 @@ export default function App() {
   const [isRadiusModalOpen, setIsRadiusModalOpen] = useState(false);
   const [isMapCenteredOnUser, setIsMapCenteredOnUser] = useState(false);
   const [hasSeenMapOnboarding, setHasSeenMapOnboarding] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showFullscreenPopup, setShowFullscreenPopup] = useState(true);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error entering fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -2183,7 +2205,48 @@ export default function App() {
                   </div>
                 </header>
 
-                <div className="welcome-body">
+                <div className="welcome-body" style={{ position: 'relative' }}>
+                  {/* Fullscreen button in white body (top-left) */}
+                  <button 
+                    onClick={toggleFullscreen} 
+                    className="fullscreen-body-btn"
+                    style={{
+                      position: 'absolute',
+                      top: '12px',
+                      left: '16px',
+                      background: 'rgba(241, 117, 34, 0.08)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '6px 10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      cursor: 'pointer',
+                      color: 'var(--primary)',
+                      fontSize: '10px',
+                      fontWeight: '700',
+                      fontFamily: 'var(--font-family)',
+                      zIndex: 10,
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    {isFullscreen ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                        </svg>
+                        <span>Janela</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+                        </svg>
+                        <span>Ecrã Inteiro</span>
+                      </>
+                    )}
+                  </button>
+
                   <h2 className="welcome-title">Olá!</h2>
                   
                   <div className="welcome-logo-large">
@@ -2215,7 +2278,84 @@ export default function App() {
                   <div className="auth-guest-link">
                     ...ou entra como <span className="visitor-underlined" onClick={handleGuestLogin}>Visitante</span>
                   </div>
+                  
+                  {/* Version badge */}
+                  <div className="prototype-version-badge" style={{ fontSize: '10px', color: '#94a3b8', marginTop: '16px', fontWeight: '500', fontFamily: 'var(--font-family)', letterSpacing: '0.5px' }}>
+                    Protótipo v1.1.a
+                  </div>
                 </div>
+
+                {/* Fullscreen Popup Dialog */}
+                {showFullscreenPopup && (
+                  <div className="fullscreen-popup-overlay" style={{
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    padding: '20px'
+                  }}>
+                    <div className="fullscreen-popup-card" style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '16px',
+                      padding: '24px',
+                      width: '100%',
+                      maxWidth: '300px',
+                      textAlign: 'center',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                      fontFamily: 'var(--font-family)'
+                    }}>
+                      <div style={{ color: 'var(--primary)', marginBottom: '12px', display: 'flex', justifyContent: 'center' }}>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+                        </svg>
+                      </div>
+                      <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>Ecrã Inteiro</h3>
+                      <p style={{ margin: '0 0 20px 0', fontSize: '12px', color: '#64748b', lineHeight: '1.5' }}>
+                        Desejas ver a aplicação em ecrã inteiro para uma melhor experiência e evitar sobreposições?
+                      </p>
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                        <button 
+                          onClick={() => setShowFullscreenPopup(false)}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: '1px solid #cbd5e1',
+                            backgroundColor: '#ffffff',
+                            color: '#64748b',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Não
+                        </button>
+                        <button 
+                          onClick={() => {
+                            toggleFullscreen();
+                            setShowFullscreenPopup(false);
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            backgroundColor: 'var(--primary)',
+                            color: '#ffffff',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Sim
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -4451,6 +4591,30 @@ export default function App() {
                 </button>
 
                 <button 
+                  className="settings-action-row" 
+                  onClick={() => {
+                    toggleFullscreen();
+                    setIsSettingsOpen(false);
+                  }}
+                >
+                  {isFullscreen ? (
+                    <>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                      </svg>
+                      <span>Sair de Ecrã Inteiro</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+                      </svg>
+                      <span>Entrar em Ecrã Inteiro</span>
+                    </>
+                  )}
+                </button>
+
+                <button 
                   className="settings-action-row logout-row" 
                   onClick={() => {
                     setIsSettingsOpen(false);
@@ -4464,6 +4628,11 @@ export default function App() {
                   </svg>
                   <span>Terminar Sessão</span>
                 </button>
+
+                {/* Version badge inside settings */}
+                <div className="settings-version-badge" style={{ fontSize: '10px', color: '#94a3b8', marginTop: '20px', marginBottom: '8px', textAlign: 'center', fontWeight: '500', fontFamily: 'var(--font-family)', letterSpacing: '0.5px', width: '100%' }}>
+                  Protótipo v1.1.a
+                </div>
               </div>
             </div>
           </div>
