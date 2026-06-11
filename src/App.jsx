@@ -296,6 +296,7 @@ export default function App() {
       authorName: 'HardBar',
       authorAvatar: '/assets/hardbar_avatar.png',
       eventTitle: 'Concerto no HardBar',
+      location: 'Bustos',
       photo: '/assets/hardbar_photo.png',
       title: 'Estou adorar!',
       description: 'Não estava a contar vir ao HardBar e ter um concerto!! Tenho de cá voltar! Adorei o Marcvs Marçal!',
@@ -314,6 +315,7 @@ export default function App() {
       authorName: 'Agrupamento Escolas de Esgueira',
       authorAvatar: '/assets/aee_avatar.png',
       eventTitle: 'Cicloturismo - AEE',
+      location: 'Esgueira, Aveiro',
       photo: '/assets/aee_photo.png',
       title: 'Excelente adesão!',
       description: 'O grupo de cicloturismo das Escolas de Esgueira já está a caminho! Lindo ver tanta gente unida pelo desporto.',
@@ -696,6 +698,14 @@ export default function App() {
     setViewingEventId(null);
   };
 
+  const handleEventClick = (eventId) => {
+    if (!eventId) return;
+    setCurrentTab('feed');
+    setViewingEventId(eventId);
+    setViewingUser(null);
+    setExpandedMomentId(null);
+  };
+
   // Camera State
   const [cameraStream, setCameraStream] = useState(null);
   const [cameraError, setCameraError] = useState(false);
@@ -920,15 +930,18 @@ export default function App() {
 
       // Listen to map events for long-press re-centering & clearing isMapCenteredOnUser
       let pressTimer = null;
+      let startPoint = null;
       
-      const startPress = (latlng) => {
+      const startPress = (latlng, point) => {
         if (pressTimer) clearTimeout(pressTimer);
+        startPoint = point;
         pressTimer = setTimeout(() => {
           setRadiusCenter([latlng.lat, latlng.lng]);
           if (navigator.vibrate) {
             navigator.vibrate(50);
           }
           pressTimer = null;
+          startPoint = null;
         }, 1000);
       };
       
@@ -937,24 +950,67 @@ export default function App() {
           clearTimeout(pressTimer);
           pressTimer = null;
         }
+        startPoint = null;
       };
 
       map.on('mousedown', (e) => {
         if (e.originalEvent && e.originalEvent.button === 0) {
-          startPress(e.latlng);
+          startPress(e.latlng, e.containerPoint);
         }
       });
       
       map.on('touchstart', (e) => {
-        if (e.latlng) {
-          startPress(e.latlng);
+        const oe = e.originalEvent;
+        if (!oe) return;
+        
+        const touch = oe.touches ? oe.touches[0] : null;
+        if (!touch) return;
+        
+        const rect = map.getContainer().getBoundingClientRect();
+        const containerPoint = L.point(
+          touch.clientX - rect.left,
+          touch.clientY - rect.top
+        );
+        const latlng = map.containerPointToLatLng(containerPoint);
+        if (latlng) {
+          startPress(latlng, containerPoint);
+        }
+      });
+
+      map.on('mousemove', (e) => {
+        if (startPoint && e.containerPoint) {
+          const dist = startPoint.distanceTo(e.containerPoint);
+          if (dist > 15) {
+            cancelPress();
+          }
+        }
+      });
+
+      map.on('touchmove', (e) => {
+        if (startPoint) {
+          const oe = e.originalEvent;
+          const touch = oe && oe.touches ? oe.touches[0] : null;
+          if (touch) {
+            const rect = map.getContainer().getBoundingClientRect();
+            const currentPoint = L.point(
+              touch.clientX - rect.left,
+              touch.clientY - rect.top
+            );
+            const dist = startPoint.distanceTo(currentPoint);
+            if (dist > 15) {
+              cancelPress();
+            }
+          } else {
+            cancelPress();
+          }
         }
       });
 
       map.on('mouseup', cancelPress);
       map.on('touchend', cancelPress);
+      map.on('touchcancel', cancelPress);
+      
       map.on('dragstart', () => {
-        cancelPress();
         setIsMapCenteredOnUser(false);
       });
       map.on('zoomstart', () => {
@@ -962,7 +1018,6 @@ export default function App() {
         setIsMapCenteredOnUser(false);
       });
       map.on('movestart', () => {
-        cancelPress();
         setIsMapCenteredOnUser(false);
       });
 
@@ -1428,18 +1483,38 @@ export default function App() {
     }
   };
 
+  // Get moments specific to the active context (user profile, event, or all)
+  const getActiveStoryMoments = () => {
+    if (viewingUser) {
+      if (userProfileTab === 'guardados') {
+        return moments.filter(m => savedMoments.includes(m.id));
+      } else {
+        return moments.filter(m => {
+          const authorClean = m.authorName.toLowerCase().replace(/\s+/g, '');
+          const nameClean = viewingUser.name.toLowerCase().replace(/\s+/g, '');
+          return authorClean.includes(nameClean) || nameClean.includes(authorClean);
+        });
+      }
+    }
+    if (viewingEventId) {
+      return moments.filter(m => m.eventId === viewingEventId);
+    }
+    return moments;
+  };
+
   // Navigate moments manually inside the story player
   const navigateMoment = (direction) => {
-    const currentIndex = moments.findIndex(m => m.id === expandedMomentId);
+    const activeMoments = getActiveStoryMoments();
+    const currentIndex = activeMoments.findIndex(m => m.id === expandedMomentId);
     if (direction === 'next') {
-      if (currentIndex < moments.length - 1) {
-        setExpandedMomentId(moments[currentIndex + 1].id);
+      if (currentIndex !== -1 && currentIndex < activeMoments.length - 1) {
+        setExpandedMomentId(activeMoments[currentIndex + 1].id);
       } else {
         setExpandedMomentId(null);
       }
     } else if (direction === 'prev') {
       if (currentIndex > 0) {
-        setExpandedMomentId(moments[currentIndex - 1].id);
+        setExpandedMomentId(activeMoments[currentIndex - 1].id);
       }
     }
   };
@@ -2841,7 +2916,15 @@ export default function App() {
                               {m.authorName}
                             </span>
                             <div className="moment-event-tag">
-                              <span>{m.eventTitle}</span>
+                              <span 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEventClick(m.eventId);
+                                }}
+                                style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                              >
+                                {m.eventTitle}
+                              </span>
                               {m.location && <span className="moment-location-pin"> • {m.location}</span>}
                               {m.isLive && <span className="live"> (LIVE)</span>}
                             </div>
@@ -3521,7 +3604,7 @@ export default function App() {
                         <span className="feature-icon">🎯</span>
                         <div>
                           <strong>Botão de Localização (GPS)</strong>
-                          <p>1º clique centra o mapa em ti. 2º clique centra o raio na tua localização atual (o botão fica <span style={{color: '#f17522', fontWeight: 'bold'}}>laranja</span>).</p>
+                          <p>1º clique centra o mapa em ti.<br />2º clique centra o raio na tua localização atual (o botão fica <span style={{color: '#f17522', fontWeight: 'bold'}}>laranja</span>).</p>
                         </div>
                       </div>
                     </div>
@@ -3684,7 +3767,8 @@ export default function App() {
         {/* --- EXPANDED MOMENT MODAL OVERLAY (Instagram-style Stories player) --- */}
         {expandedMomentId && (
           (() => {
-            const m = moments.find(moment => moment.id === expandedMomentId);
+            const activeMoments = getActiveStoryMoments();
+            const m = activeMoments.find(moment => moment.id === expandedMomentId) || moments.find(moment => moment.id === expandedMomentId);
             if (!m) return null;
             return (
               <div className="story-player-overlay moment-story-player">
@@ -3697,8 +3781,8 @@ export default function App() {
                 {/* Header with bars and metadata */}
                 <div className="story-player-header">
                   <div className="story-progress-bar-container">
-                    {moments.map((mom, idx) => {
-                      const currentActiveIndex = moments.findIndex(item => item.id === expandedMomentId);
+                    {activeMoments.map((mom, idx) => {
+                      const currentActiveIndex = activeMoments.findIndex(item => item.id === expandedMomentId);
                       let fillClass = '';
                       if (idx < currentActiveIndex) {
                         fillClass = 'completed';
@@ -3707,7 +3791,7 @@ export default function App() {
                       }
                       return (
                         <div key={mom.id} className="story-progress-bar-bg">
-                          <div className={`story-progress-bar-fill ${fillClass}`} style={idx === currentActiveIndex ? { width: '100%', transition: 'none' } : {}}></div>
+                           <div className={`story-progress-bar-fill ${fillClass}`} style={idx === currentActiveIndex ? { width: '100%', transition: 'none' } : {}}></div>
                         </div>
                       );
                     })}
@@ -3719,7 +3803,16 @@ export default function App() {
                       <div className="story-player-info">
                         <div className="story-player-name">{m.authorName}</div>
                         <div className="story-player-subtitle">
-                          {m.eventTitle} {m.isLive && <span style={{color:'#ff3b30', fontWeight:'bold'}}>(LIVE)</span>}
+                          <span 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEventClick(m.eventId);
+                            }}
+                            style={{ cursor: 'pointer', textDecoration: 'underline', color: '#ffb380' }}
+                          >
+                            {m.eventTitle}
+                          </span>
+                          {m.isLive && <span style={{color:'#ff3b30', fontWeight:'bold'}}>(LIVE)</span>}
                         </div>
                       </div>
                     </div>
@@ -3755,12 +3848,12 @@ export default function App() {
                     <button 
                       className={`expanded-moment-action-btn ${m.liked ? 'liked' : ''}`}
                       onClick={(e) => { e.stopPropagation(); likeMoment(m.id); }}
-                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff' }}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
                     >
-                      <svg viewBox="0 0 24 24" style={{ stroke: m.liked ? '#ff1b1b' : '#fff' }}>
+                      <svg viewBox="0 0 24 24" style={{ stroke: '#f17522', fill: m.liked ? '#f17522' : 'none', width: '20px', height: '20px' }}>
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                       </svg>
-                      <span>{m.likes} Likes</span>
+                      <span style={{ fontWeight: '700' }}>{m.likes}</span>
                     </button>
 
                     <button 
@@ -3770,12 +3863,12 @@ export default function App() {
                         setExpandedMomentId(null);
                         setActiveCommentsMomentId(m.id);
                       }}
-                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff' }}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
                     >
-                      <svg viewBox="0 0 24 24" style={{ stroke: '#fff' }}>
+                      <svg viewBox="0 0 24 24" style={{ stroke: '#f17522', fill: 'none', width: '20px', height: '20px' }}>
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                       </svg>
-                      <span>{m.comments.length} Comentários</span>
+                      <span style={{ fontWeight: '700' }}>{m.comments.length}</span>
                     </button>
 
                     {currentUser && (
@@ -3785,12 +3878,11 @@ export default function App() {
                           e.stopPropagation();
                           toggleSaveMoment(m.id);
                         }}
-                        style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff' }}
+                        style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
                       >
-                        <svg viewBox="0 0 24 24" fill={savedMoments.includes(m.id) ? "#f5a623" : "none"} style={{ stroke: savedMoments.includes(m.id) ? '#f5a623' : '#fff', strokeWidth: '2.5', width: '20px', height: '20px' }}>
+                        <svg viewBox="0 0 24 24" fill={savedMoments.includes(m.id) ? "#f17522" : "none"} style={{ stroke: '#f17522', strokeWidth: '2.5', width: '20px', height: '20px' }}>
                           <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                         </svg>
-                        <span>{savedMoments.includes(m.id) ? 'Guardado' : 'Guardar'}</span>
                       </button>
                     )}
 
@@ -3801,16 +3893,15 @@ export default function App() {
                         setExpandedMomentId(null);
                         handleShareMomentClick(m);
                       }}
-                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff' }}
+                      style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
                     >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#f17522" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
                         <circle cx="18" cy="5" r="3"/>
                         <circle cx="6" cy="12" r="3"/>
                         <circle cx="18" cy="19" r="3"/>
                         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
                         <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
                       </svg>
-                      <span>Partilhar</span>
                     </button>
                   </div>
                 </div>
