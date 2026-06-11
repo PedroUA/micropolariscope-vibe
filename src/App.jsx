@@ -5302,7 +5302,16 @@ export default function App() {
                       }}
                       style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#f17522' }}
                     >
-                      <svg viewBox="0 0 24 24" fill={savedMoments.includes(m.id) ? "#f17522" : "none"} style={{ stroke: '#f17522', strokeWidth: '2.5', width: '20px', height: '20px' }}>
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        style={{ 
+                          stroke: '#f17522', 
+                          strokeWidth: '2.5', 
+                          fill: savedMoments.includes(m.id) ? "#f17522" : "none",
+                          width: '20px', 
+                          height: '20px' 
+                        }}
+                      >
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                       </svg>
                     </button>
