@@ -848,6 +848,10 @@ export default function App() {
   // --- MAP INTEGRATION ---
   useEffect(() => {
     let map = null;
+    let onTouchStart = null;
+    let onTouchMove = null;
+    let onTouchEnd = null;
+    let mapContainer = null;
 
     if (currentTab === 'map' && mapContainerRef.current && !mapInstanceRef.current) {
       // Initialize map centered at Aveiro
@@ -959,24 +963,6 @@ export default function App() {
         }
       });
       
-      map.on('touchstart', (e) => {
-        const oe = e.originalEvent;
-        if (!oe) return;
-        
-        const touch = oe.touches ? oe.touches[0] : null;
-        if (!touch) return;
-        
-        const rect = map.getContainer().getBoundingClientRect();
-        const containerPoint = L.point(
-          touch.clientX - rect.left,
-          touch.clientY - rect.top
-        );
-        const latlng = map.containerPointToLatLng(containerPoint);
-        if (latlng) {
-          startPress(latlng, containerPoint);
-        }
-      });
-
       map.on('mousemove', (e) => {
         if (startPoint && e.containerPoint) {
           const dist = startPoint.distanceTo(e.containerPoint);
@@ -986,29 +972,52 @@ export default function App() {
         }
       });
 
-      map.on('touchmove', (e) => {
-        if (startPoint) {
-          const oe = e.originalEvent;
-          const touch = oe && oe.touches ? oe.touches[0] : null;
-          if (touch) {
-            const rect = map.getContainer().getBoundingClientRect();
-            const currentPoint = L.point(
-              touch.clientX - rect.left,
-              touch.clientY - rect.top
-            );
-            const dist = startPoint.distanceTo(currentPoint);
-            if (dist > 15) {
+      map.on('mouseup', cancelPress);
+
+      // Bind native touch events directly to the map container to bypass Leaflet event blocking on mobile
+      mapContainer = mapContainerRef.current;
+      if (mapContainer) {
+        onTouchStart = (e) => {
+          const touch = e.touches ? e.touches[0] : null;
+          if (!touch) return;
+          
+          const rect = mapContainer.getBoundingClientRect();
+          const containerPoint = L.point(
+            touch.clientX - rect.left,
+            touch.clientY - rect.top
+          );
+          const latlng = map.containerPointToLatLng(containerPoint);
+          if (latlng) {
+            startPress(latlng, containerPoint);
+          }
+        };
+
+        onTouchMove = (e) => {
+          if (startPoint) {
+            const touch = e.touches ? e.touches[0] : null;
+            if (touch) {
+              const rect = mapContainer.getBoundingClientRect();
+              const currentPoint = L.point(
+                touch.clientX - rect.left,
+                touch.clientY - rect.top
+              );
+              const dist = startPoint.distanceTo(currentPoint);
+              if (dist > 15) {
+                cancelPress();
+              }
+            } else {
               cancelPress();
             }
-          } else {
-            cancelPress();
           }
-        }
-      });
+        };
 
-      map.on('mouseup', cancelPress);
-      map.on('touchend', cancelPress);
-      map.on('touchcancel', cancelPress);
+        onTouchEnd = cancelPress;
+
+        mapContainer.addEventListener('touchstart', onTouchStart, { passive: true });
+        mapContainer.addEventListener('touchmove', onTouchMove, { passive: true });
+        mapContainer.addEventListener('touchend', onTouchEnd, { passive: true });
+        mapContainer.addEventListener('touchcancel', onTouchEnd, { passive: true });
+      }
       
       map.on('dragstart', () => {
         setIsMapCenteredOnUser(false);
@@ -1101,6 +1110,12 @@ export default function App() {
     }
 
     return () => {
+      if (mapContainer && onTouchStart) {
+        mapContainer.removeEventListener('touchstart', onTouchStart);
+        mapContainer.removeEventListener('touchmove', onTouchMove);
+        mapContainer.removeEventListener('touchend', onTouchEnd);
+        mapContainer.removeEventListener('touchcancel', onTouchEnd);
+      }
       // Cleanup map instance if tab unmounts
       if (currentTab !== 'map' && mapInstanceRef.current) {
         mapInstanceRef.current.remove();
