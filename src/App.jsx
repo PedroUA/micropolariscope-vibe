@@ -2827,7 +2827,7 @@ export default function App() {
                                     <img src={m.photo} className="user-profile-moment-img" alt={m.title} />
                                     <div className="user-profile-moment-info">
                                       <span className="user-profile-moment-title">{m.title}</span>
-                                      <span className="user-profile-moment-likes">❤️ {m.likes} Likes</span>
+                                      <span className="user-profile-moment-likes">❤️ {m.likes} Gostos</span>
                                     </div>
                                   </div>
                                 ))}
@@ -2877,7 +2877,7 @@ export default function App() {
                                   <img src={m.photo} className="user-profile-moment-img" alt={m.title} />
                                   <div className="user-profile-moment-info">
                                     <span className="user-profile-moment-title">{m.title}</span>
-                                    <span className="user-profile-moment-likes">❤️ {m.likes} Likes</span>
+                                    <span className="user-profile-moment-likes">❤️ {m.likes} Gostos</span>
                                   </div>
                                 </div>
                               ))}
@@ -3169,7 +3169,7 @@ export default function App() {
                                 {m.eventTitle}
                               </span>
                               {m.location && <span className="moment-location-pin"> • {m.location}</span>}
-                              {m.isLive && <span className="live"> (LIVE)</span>}
+                              {m.isLive && <span className="live"> (AO VIVO)</span>}
                             </div>
                           </div>
                         </div>
@@ -3749,7 +3749,7 @@ export default function App() {
                 </button>
                 <input 
                   type="text" 
-                  placeholder="Search here" 
+                  placeholder="Pesquisar aqui" 
                   className="search-input-field"
                   value={mapSearchQuery}
                   onChange={(e) => setMapSearchQuery(e.target.value)}
@@ -3757,7 +3757,7 @@ export default function App() {
                 <button 
                   className={`search-mic-btn ${isMapRecording ? 'recording' : ''}`} 
                   onClick={handleVoiceSearch}
-                  aria-label="Search by voice"
+                  aria-label="Pesquisar por voz"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
@@ -3987,7 +3987,7 @@ export default function App() {
                   <div className="story-player-info">
                     <div className="story-player-name">{activeStoryEvent.organizer}</div>
                     <div className="story-player-subtitle">
-                      {activeStoryEvent.title} {activeStoryEvent.live && <span style={{color:'#ff3b30', fontWeight:'bold'}}>(LIVE)</span>}
+                      {activeStoryEvent.title} {activeStoryEvent.live && <span style={{color:'#ff3b30', fontWeight:'bold'}}>(AO VIVO)</span>}
                     </div>
                   </div>
                 </div>
@@ -4056,7 +4056,7 @@ export default function App() {
                           >
                             {m.eventTitle}
                           </span>
-                          {m.isLive && <span style={{color:'#ff3b30', fontWeight:'bold'}}>(LIVE)</span>}
+                          {m.isLive && <span style={{color:'#ff3b30', fontWeight:'bold'}}>(AO VIVO)</span>}
                         </div>
                       </div>
                     </div>
