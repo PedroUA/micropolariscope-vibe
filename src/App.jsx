@@ -1281,6 +1281,15 @@ export default function App() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
+      
+      // Auto re-enter fullscreen if the browser exited it during the system permission prompt
+      setTimeout(() => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.log("Could not re-enter fullscreen after camera started: ", err);
+          });
+        }
+      }, 500);
     } catch (err) {
       console.warn("Webcam access failed or denied: ", err);
       setCameraError(true);
