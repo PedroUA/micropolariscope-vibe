@@ -3645,7 +3645,11 @@ export default function App() {
                     </span>
                   </div>
 
-                  <button type="submit" className="register-submit-btn" style={{ marginTop: '24px' }}>
+                  <button 
+                    type="submit" 
+                    className={`register-submit-btn ${loginEmail.trim() && loginPassword.trim() ? 'filled' : ''}`} 
+                    style={{ marginTop: '24px' }}
+                  >
                     Inicia sessão
                   </button>
 
@@ -3775,7 +3779,10 @@ export default function App() {
                     </div>
                   </div>
 
-                  <button type="submit" className="register-submit-btn">
+                  <button 
+                    type="submit" 
+                    className={`register-submit-btn ${registerName.trim() && registerEmail.trim() && registerPassword.trim() && registerConfirmPassword.trim() ? 'filled' : ''}`}
+                  >
                     Criar conta
                   </button>
 
