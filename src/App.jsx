@@ -1770,6 +1770,7 @@ export default function App() {
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
   const [registerAccountType, setRegisterAccountType] = useState('Pessoal'); // 'Pessoal' | 'Organização'
   const [registerError, setRegisterError] = useState('');
+  const [registerAvatar, setRegisterAvatar] = useState('/assets/profile.svg');
   // DateTimePicker State
   const [isDateTimePickerOpen, setIsDateTimePickerOpen] = useState(false);
   const [pickerTab, setPickerTab] = useState('date'); // 'date' | 'time'
@@ -4246,7 +4247,11 @@ export default function App() {
                     </span>
                   </div>
 
-                  <button type="submit" className="register-submit-btn" style={{ marginTop: '24px' }}>
+                  <button 
+                    type="submit" 
+                    className={`register-submit-btn ${loginEmail.trim() && loginPassword.trim() ? 'filled' : ''}`} 
+                    style={{ marginTop: '24px' }}
+                  >
                     Inicia sessão
                   </button>
 
@@ -4279,6 +4284,20 @@ export default function App() {
                   <h3 className="register-title">Criar conta</h3>
 
                   {registerError && <div className="auth-error-msg">{registerError}</div>}
+
+                  {/* Profile Avatar Selection Card */}
+                  <div className="auth-avatar-selection-card" onClick={() => profileAvatarInputRef.current && profileAvatarInputRef.current.click()}>
+                    <div className="auth-avatar-selection-wrapper">
+                      <img src={registerAvatar} alt="Profile Avatar" className="auth-avatar-selection-img" />
+                      <div className="auth-avatar-selection-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                          <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="auth-avatar-selection-label">Escolher foto de perfil</span>
+                  </div>
 
                   <div className="register-field-group">
                     <label htmlFor="register-name" className="register-label">Nome</label>
@@ -4362,7 +4381,10 @@ export default function App() {
                     </div>
                   </div>
 
-                  <button type="submit" className="register-submit-btn">
+                  <button 
+                    type="submit" 
+                    className={`register-submit-btn ${registerName.trim() && registerEmail.trim() && registerPassword.trim() && registerConfirmPassword.trim() ? 'filled' : ''}`}
+                  >
                     Criar conta
                   </button>
 
