@@ -271,7 +271,8 @@ body {
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding: 8px 16px;
+  overflow-y: visible;
+  padding: 14px 16px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
@@ -295,7 +296,35 @@ body {
   flex-shrink: 0;
   cursor: pointer;
   text-decoration: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
+
+/* Focus ring via ::after so it doesn't conflict with pulse-border animation */
+.event-story-item.selected .event-card-frame {
+  transform: scale(1.07);
+}
+.event-story-item.selected .event-card-frame::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 26px;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 2px var(--primary), 0 4px 16px rgba(241, 117, 34, 0.5);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.event-story-item.selected {
+  transform: scale(1.07);
+}
+
+/* Focus mode: non-selected events fade out */
+.event-story-item.not-selected {
+  opacity: 0.35;
+  transform: scale(0.95);
+}
+
+
 
 .event-card-frame {
   position: relative;
@@ -4985,4 +5014,205 @@ input:checked + .slider::before {
 
 .phone-shell.fullscreen-active .phone-notch {
   display: none !important;
+}
+
+/* Feed Onboarding overlay styling */
+.feed-onboarding-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.feed-onboarding-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 340px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feed-onboarding-icon {
+  margin-top: 10px; /* ligeiramente mais para baixo */
+  margin-bottom: -10px; /* reduz o gap entre o logo e o titulo */
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+}
+.feed-onboarding-icon svg {
+  transform: scale(1.15); /* um pouco maior */
+}
+
+.feed-onboarding-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.feed-onboarding-desc {
+  font-size: 13.5px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.feed-onboarding-features {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  margin: 8px 0;
+  position: relative;
+}
+
+.feed-onboarding-feature {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: rgba(241, 117, 34, 0.05);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(241, 117, 34, 0.1);
+}
+
+/* Hierarchy: Momentos nested under Eventos */
+.feed-onboarding-feature.momentos-feature {
+  margin-left: 20px;
+  position: relative;
+}
+
+/* Tree-line connector: vertical + horizontal "L" shape */
+.feed-onboarding-feature.momentos-feature::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: -14px;
+  width: 8px;
+  height: calc(50% + 14px);
+  border-left: 2px dashed rgba(241, 117, 34, 0.4);
+  border-bottom: 2px dashed rgba(241, 117, 34, 0.4);
+  border-bottom-left-radius: 0;
+}
+
+
+
+.feed-onboarding-feature strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.feed-onboarding-feature p {
+  margin: 0;
+  font-size: 11.5px;
+  color: #555;
+  line-height: 1.35;
+}
+
+.feed-onboarding-btn {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(241, 117, 34, 0.3);
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.feed-onboarding-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(241, 117, 34, 0.2);
+}
+
+/* Onboarding Focus Demo - Mini Event Card */
+.onboarding-focus-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.onboarding-mock-event {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.onboarding-mock-event-border {
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  padding: 2.5px;
+  background: var(--primary-gradient);
+  animation: pulse-focus-event 2s infinite;
+  box-shadow: 0 0 0 0 rgba(241, 117, 34, 0.5);
+}
+
+.onboarding-mock-event-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.onboarding-mock-event-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.onboarding-mock-event-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+.onboarding-tap-icon {
+  position: absolute;
+  bottom: 14px;
+  right: -14px;
+  color: var(--primary);
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+  animation: tap-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-focus-event {
+  0% { box-shadow: 0 0 0 0 rgba(241, 117, 34, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(241, 117, 34, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(241, 117, 34, 0); }
+}
+
+@keyframes tap-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(-4px); opacity: 1; }
 }
