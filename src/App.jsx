@@ -2064,6 +2064,12 @@ export default function App() {
   }, []);
 
   const openUserProfile = (userName, avatar) => {
+    setNavHistory((prev) => {
+      const nextHist = [...prev, { tab: currentTab, viewingUser: viewingUser, viewingEventId: viewingEventId }];
+      if (nextHist.length > 20) nextHist.shift();
+      return nextHist;
+    });
+
     let role = 'Pessoal';
     let bio = 'Amante de Aveiro, partilho momentos e vibes!';
     let banner = 'https://images.unsplash.com/photo-1486591978090-58e619d37fe7?w=600&auto=format&fit=crop&q=80';
@@ -2110,6 +2116,11 @@ export default function App() {
 
   const handleEventClick = (eventId) => {
     if (!eventId) return;
+    setNavHistory((prev) => {
+      const nextHist = [...prev, { tab: currentTab, viewingUser: viewingUser, viewingEventId: viewingEventId }];
+      if (nextHist.length > 20) nextHist.shift();
+      return nextHist;
+    });
     setCurrentTab('feed');
     setViewingEventId(eventId);
     setViewingUser(null);
@@ -2125,6 +2136,8 @@ export default function App() {
   const [newPostLocation, setNewPostLocation] = useState('');
   const [isEventDropdownOpen, setIsEventDropdownOpen] = useState(false);
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [cameraOnboardingStep, setCameraOnboardingStep] = useState(null); // null | 'event' | 'location'
+  const [hasSeenCameraOnboarding, setHasSeenCameraOnboarding] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState('');
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
   const [postTitle, setPostTitle] = useState('');
@@ -3044,6 +3057,18 @@ export default function App() {
     }
   }, [mapStyle, mapSearchQuery, isSharingSheetOpen, currentTab]);
 
+  // Camera onboarding popup trigger
+  useEffect(() => {
+    if (currentTab === 'camera') {
+      if (!hasSeenCameraOnboarding && !newPostEventId && !newPostLocation) {
+        setCameraOnboardingStep('event');
+        setHasSeenCameraOnboarding(true);
+      }
+    } else {
+      setCameraOnboardingStep(null);
+    }
+  }, [currentTab, hasSeenCameraOnboarding]);
+
   // --- WEBCAM INTEGRATION ---
   useEffect(() => {
     if (currentTab === 'camera' && !capturedPhoto) {
@@ -3750,6 +3775,113 @@ export default function App() {
   };
 
 
+  // Story player mobile drag/swipe gesture refs
+  const dragStartStoryRef = useRef({ x: 0, y: 0, time: 0 });
+  const isDraggingStoryRef = useRef(false);
+  const hasDraggedStoryRef = useRef(false);
+
+  // Navigation History Stack logic for detail views
+  const [navHistory, setNavHistory] = useState([]);
+
+  const goBack = () => {
+    if (navHistory.length === 0) {
+      setViewingUser(null);
+      setViewingEventId(null);
+      return;
+    }
+
+    const prevHistory = [...navHistory];
+    const prevState = prevHistory.pop();
+    setNavHistory(prevHistory);
+
+    if (prevState.tab !== undefined) {
+      setCurrentTab(prevState.tab);
+    }
+    setViewingUser(prevState.viewingUser);
+    setViewingEventId(prevState.viewingEventId);
+  };
+
+  const handleStoryDragStart = (e) => {
+    // If pointer down was on an interactive element (button, link, etc.), ignore for swipe drag
+    const target = e.target;
+    if (
+      target.tagName === 'BUTTON' ||
+      target.closest('button') ||
+      target.closest('a') ||
+      target.closest('.moment-story-actions-row')
+    ) {
+      return;
+    }
+
+    if (e.button !== undefined && e.button !== 0) return;
+    dragStartStoryRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    isDraggingStoryRef.current = true;
+    hasDraggedStoryRef.current = false;
+    e.currentTarget.style.transition = 'none';
+  };
+
+  const handleStoryDragMove = (e) => {
+    if (!isDraggingStoryRef.current) return;
+    const diffY = e.clientY - dragStartStoryRef.current.y;
+    const diffX = e.clientX - dragStartStoryRef.current.x;
+
+    if (Math.abs(diffY) > 8 || Math.abs(diffX) > 8) {
+      hasDraggedStoryRef.current = true;
+    }
+
+    const scale = Math.max(0.85, 1 - Math.min(Math.abs(diffY) / 1000, 0.15));
+    e.currentTarget.style.transform = `translateY(${diffY}px) scale(${scale})`;
+  };
+
+  const handleStoryDragEnd = (e, type) => {
+    if (!isDraggingStoryRef.current) return;
+    isDraggingStoryRef.current = false;
+
+    const diffY = e.clientY - dragStartStoryRef.current.y;
+    const elapsed = Date.now() - dragStartStoryRef.current.time;
+
+    const isSwipeDismiss = Math.abs(diffY) > 120 || (Math.abs(diffY) > 50 && elapsed < 250);
+
+    if (isSwipeDismiss) {
+      e.currentTarget.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease';
+      const direction = diffY > 0 ? 1 : -1;
+      e.currentTarget.style.transform = `translateY(${direction * 100}%) scale(0.85)`;
+      e.currentTarget.style.opacity = '0';
+
+      const target = e.currentTarget;
+      setTimeout(() => {
+        if (target) {
+          target.style.transform = '';
+          target.style.transition = '';
+          target.style.opacity = '';
+        }
+        if (type === 'moment') {
+          setExpandedMomentId(null);
+        } else {
+          setActiveStoryEventId(null);
+        }
+      }, 200);
+    } else {
+      e.currentTarget.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+      const target = e.currentTarget;
+      setTimeout(() => {
+        if (target) {
+          target.style.transition = '';
+        }
+      }, 250);
+    }
+  };
+
+  const handleStoryClickCapture = (e) => {
+    if (hasDraggedStoryRef.current) {
+      e.stopPropagation();
+      e.preventDefault();
+      hasDraggedStoryRef.current = false;
+    }
+  };
+
+
   // --- FORM ACTIONS ---
   const handleCreateEvent = (e) => {
     e.preventDefault();
@@ -4401,7 +4533,7 @@ export default function App() {
             {currentTab === 'feed' && viewingEventId && (
               <button
                 className="event-detail-back-btn"
-                onClick={() => setViewingEventId(null)}
+                onClick={goBack}
                 aria-label="Voltar"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -4442,7 +4574,7 @@ export default function App() {
                   {/* Back Button */}
                   <button
                     className="event-detail-back-btn user-profile-back-btn"
-                    onClick={() => setViewingUser(null)}
+                    onClick={goBack}
                     aria-label="Voltar"
                   >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -4667,7 +4799,7 @@ export default function App() {
                                 {userEvents.length > 0 ? (
                                   <div className="user-profile-events-list">
                                     {userEvents.map(evt => (
-                                      <div key={evt.id} className="user-profile-event-card" onClick={() => { setViewingEventId(evt.id); setViewingUser(null); }}>
+                                      <div key={evt.id} className="user-profile-event-card" onClick={() => handleEventClick(evt.id)}>
                                         <img src={evt.image} className="user-profile-event-img" alt={evt.title} />
                                         <div className="user-profile-event-title-badge">
                                           {evt.title}
@@ -4729,7 +4861,7 @@ export default function App() {
                               return (
                                 <div className="user-profile-events-list">
                                   {savedEvts.map(evt => (
-                                    <div key={evt.id} className="user-profile-event-card" onClick={() => { setViewingEventId(evt.id); setViewingUser(null); }}>
+                                    <div key={evt.id} className="user-profile-event-card" onClick={() => handleEventClick(evt.id)}>
                                       <img src={evt.image} className="user-profile-event-img" alt={evt.title} />
                                       <div className="user-profile-event-title-badge">
                                         {evt.title}
@@ -5181,20 +5313,40 @@ export default function App() {
                                   <>
                                     <div className="feed-onboarding-icon">
                                       <div className="onboarding-focus-demo">
-                                        <div className="onboarding-mock-event">
-                                          <div className="onboarding-mock-event-border">
-                                            <div className="onboarding-mock-event-img">
-                                              <img src={events[0]?.image || 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=100&auto=format&fit=crop&q=60'} alt="Evento" />
+                                        <div className="onboarding-mock-bar">
+                                          {/* Event 1 (Left) - Feira */}
+                                          <div className="onboarding-mock-event event-1">
+                                            <div className="onboarding-mock-event-border">
+                                              <div className="onboarding-mock-event-img">
+                                                <img src="/mock_feira.jpg" alt="Feira" />
+                                              </div>
                                             </div>
+                                            <span className="onboarding-mock-event-label">Feira</span>
                                           </div>
-                                          <span className="onboarding-mock-event-label">Evento</span>
+
+                                          {/* Event 2 (Middle) - Festival */}
+                                          <div className="onboarding-mock-event event-2">
+                                            <div className="onboarding-mock-event-border double-outline">
+                                              <div className="onboarding-mock-event-img">
+                                                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=120&auto=format&fit=crop&q=80" alt="Festival" />
+                                              </div>
+                                            </div>
+                                            <span className="onboarding-mock-event-label">Festival</span>
+                                            
+                                            {/* Hand Icon (maozinha) pointing finger (a apontar o dedo) */}
+                                            <img className="onboarding-tap-icon" src="/mock_hand.png" alt="Touch gesture" width="36" height="36" />
+                                          </div>
+
+                                          {/* Event 3 (Right) - Teatro */}
+                                          <div className="onboarding-mock-event event-3">
+                                            <div className="onboarding-mock-event-border">
+                                              <div className="onboarding-mock-event-img">
+                                                <img src="/mock_teatro.jpg" alt="Teatro" />
+                                              </div>
+                                            </div>
+                                            <span className="onboarding-mock-event-label">Teatro</span>
+                                          </div>
                                         </div>
-                                        <svg className="onboarding-tap-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" />
-                                          <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v6" />
-                                          <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
-                                          <path d="M18 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 13" />
-                                        </svg>
                                       </div>
                                     </div>
                                     <h3 className="feed-onboarding-title">Modo Foco no Evento</h3>
@@ -5237,6 +5389,18 @@ export default function App() {
                   {/* TAB 2: CAMERA CAPTURE */}
                   {currentTab === 'camera' && (
                     <div className="camera-screen-container">
+                      {cameraOnboardingStep !== null && (
+                        <div 
+                          className="camera-onboarding-backdrop" 
+                          onClick={() => {
+                            if (cameraOnboardingStep === 'event') {
+                              setCameraOnboardingStep('location');
+                            } else {
+                              setCameraOnboardingStep(null);
+                            }
+                          }}
+                        />
+                      )}
                       {/* --- UPPER SELECTORS OVERLAY --- */}
                       <div className="camera-top-overlay">
                         <button
@@ -5266,10 +5430,10 @@ export default function App() {
 
                         <div className="camera-selectors">
                           {/* Event Selector */}
-                          <div className="camera-selector-container">
+                          <div className={`camera-selector-container ${cameraOnboardingStep === 'event' ? 'onboarding-active' : ''}`}>
                             <button
                               type="button"
-                              className="camera-selector-btn"
+                              className={`camera-selector-btn ${cameraOnboardingStep === 'event' ? 'onboarding-highlighted' : ''}`}
                               onClick={() => {
                                 setIsEventDropdownOpen(!isEventDropdownOpen);
                                 setIsLocationDropdownOpen(false);
@@ -5336,13 +5500,41 @@ export default function App() {
                                 </div>
                               </div>
                             )}
+
+                            {cameraOnboardingStep === 'event' && (
+                              <div className="camera-onboarding-tooltip" onClick={(e) => e.stopPropagation()}>
+                                <div className="camera-onboarding-tooltip-arrow"></div>
+                                <h4 className="camera-onboarding-tooltip-title">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ transform: 'translateY(1px)' }}>
+                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                                    <line x1="4" y1="22" x2="4" y2="15"></line>
+                                  </svg>
+                                  Associar Evento *
+                                </h4>
+                                <p className="camera-onboarding-tooltip-text">
+                                  Associe este momento a um evento. Isto é obrigatório para que os participantes o vejam no feed do evento.
+                                </p>
+                                <div className="camera-onboarding-tooltip-footer">
+                                  <button
+                                    type="button"
+                                    className="camera-onboarding-tooltip-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setCameraOnboardingStep('location');
+                                    }}
+                                  >
+                                    Seguinte
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           {/* Location Selector */}
-                          <div className="camera-selector-container">
+                          <div className={`camera-selector-container ${cameraOnboardingStep === 'location' ? 'onboarding-active' : ''}`}>
                             <button
                               type="button"
-                              className="camera-selector-btn"
+                              className={`camera-selector-btn ${cameraOnboardingStep === 'location' ? 'onboarding-highlighted' : ''}`}
                               onClick={() => {
                                 setIsLocationDropdownOpen(!isLocationDropdownOpen);
                                 setIsEventDropdownOpen(false);
@@ -5468,7 +5660,7 @@ export default function App() {
                                   <div className="dropdown-custom-input-row" onClick={(e) => e.stopPropagation()}>
                                     <input
                                       type="text"
-                                      placeholder="Outro... (Pressiona Enter)"
+                                      placeholder="Outro..."
                                       className="custom-location-input"
                                       onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
@@ -5483,6 +5675,34 @@ export default function App() {
                                       }}
                                     />
                                   </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {cameraOnboardingStep === 'location' && (
+                              <div className="camera-onboarding-tooltip" onClick={(e) => e.stopPropagation()}>
+                                <div className="camera-onboarding-tooltip-arrow"></div>
+                                <h4 className="camera-onboarding-tooltip-title">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                  </svg>
+                                  Definir Localização *
+                                </h4>
+                                <p className="camera-onboarding-tooltip-text">
+                                  Indique a localização ou palco da foto para situar este momento no mapa do evento.
+                                </p>
+                                <div className="camera-onboarding-tooltip-footer">
+                                  <button
+                                    type="button"
+                                    className="camera-onboarding-tooltip-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setCameraOnboardingStep(null);
+                                    }}
+                                  >
+                                    Entendi
+                                  </button>
                                 </div>
                               </div>
                             )}
@@ -5836,6 +6056,7 @@ export default function App() {
                     setViewingEventId(null);
                     setExpandedMomentId(null);
                     setSelectedEventId(null);
+                    setNavHistory([]);
                   }}
                   aria-label="Home"
                 >
@@ -5860,6 +6081,7 @@ export default function App() {
                     setViewingEventId(null);
                     setExpandedMomentId(null);
                     setSelectedEventId(null);
+                    setNavHistory([]);
                   }}
                   aria-label="Capture Moment"
                 >
@@ -5891,6 +6113,7 @@ export default function App() {
                     setViewingEventId(null);
                     setExpandedMomentId(null);
                     setSelectedEventId(null);
+                    setNavHistory([]);
                   }}
                   aria-label="Event Map"
                 >
@@ -5909,7 +6132,13 @@ export default function App() {
 
             {/* --- STORY PLAYER OVERLAY (Instagram-style) --- */}
             {activeStoryEventId && activeStoryEvent && (
-              <div className="story-player-overlay">
+              <div 
+                className="story-player-overlay"
+                onPointerDown={handleStoryDragStart}
+                onPointerMove={handleStoryDragMove}
+                onPointerUp={(e) => handleStoryDragEnd(e, 'story')}
+                onClickCapture={handleStoryClickCapture}
+              >
                 {/* Tap Navigation */}
                 <div className="story-tap-navigation">
                   <div className="story-tap-left" onClick={() => navigateStory('prev')}></div>
@@ -5973,7 +6202,13 @@ export default function App() {
                 const m = activeMoments.find(moment => moment.id === expandedMomentId) || moments.find(moment => moment.id === expandedMomentId);
                 if (!m) return null;
                 return (
-                  <div className="story-player-overlay moment-story-player">
+                  <div 
+                    className="story-player-overlay moment-story-player"
+                    onPointerDown={handleStoryDragStart}
+                    onPointerMove={handleStoryDragMove}
+                    onPointerUp={(e) => handleStoryDragEnd(e, 'moment')}
+                    onClickCapture={handleStoryClickCapture}
+                  >
                     {/* Tap Navigation */}
                     <div className="story-tap-navigation">
                       <div className="story-tap-left" onClick={() => navigateMoment('prev')}></div>
