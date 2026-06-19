@@ -2149,6 +2149,7 @@ export default function App() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [drafts, setDrafts] = useState([]);
   const [savedEvents, setSavedEvents] = useState([]);
+  const [likedEvents, setLikedEvents] = useState([]);
   const [savedMoments, setSavedMoments] = useState([]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -2655,6 +2656,15 @@ export default function App() {
     setIsSharingSheetOpen(true);
   };
 
+  const handleShareEventClick = (evt) => {
+    setSharingData({
+      type: 'event',
+      label: `Partilhar Evento: ${evt.title}`,
+      url: `http://micropolariscope.app/e/${evt.id}`
+    });
+    setIsSharingSheetOpen(true);
+  };
+
   const handleCompassClick = () => {
     setPolariscopeVisible(!polariscopeVisible);
     setMapStyle(mapStyle === 'light' ? 'dark' : 'light');
@@ -2664,12 +2674,16 @@ export default function App() {
   const handleCopyLocation = () => {
     const activeUrl = sharingData?.url || `http://micropolariscope.app.maps/HEU(/&Gz-lat${USER_LOCATION[0]}-lng${USER_LOCATION[1]}`;
     navigator.clipboard.writeText(activeUrl);
-    const itemLabel = sharingData?.type === 'map' ? 'localização' : 'momento';
+    let itemLabel = 'localização';
+    if (sharingData?.type === 'moment') itemLabel = 'momento';
+    else if (sharingData?.type === 'event') itemLabel = 'evento';
     showToast(`Link de ${itemLabel} copiado!`);
   };
 
   const handleSocialShare = (platform) => {
-    const itemLabel = sharingData?.type === 'map' ? 'a localização' : 'o momento';
+    let itemLabel = 'a localização';
+    if (sharingData?.type === 'moment') itemLabel = 'o momento';
+    else if (sharingData?.type === 'event') itemLabel = 'o evento';
     showToast(`A partilhar ${itemLabel} via ${platform}...`);
     setTimeout(() => {
       setIsSharingSheetOpen(false);
@@ -3538,6 +3552,42 @@ export default function App() {
       } else {
         showToast('Momento guardado com sucesso!');
         return [...prev, momentId];
+      }
+    });
+  };
+
+  const getEventLikes = (evt) => {
+    if (!evt) return 0;
+    if (evt.likes !== undefined) return evt.likes;
+    // Calculate a stable pseudo-random like count based on the event title hash
+    const hash = evt.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return (hash % 45) + 15; // Stable number between 15 and 59
+  };
+
+  const toggleLikeEvent = (eventId) => {
+    if (!currentUser) {
+      showToast('Inicia sessão para gostar deste evento!');
+      return;
+    }
+    setLikedEvents(prev => {
+      const isLiked = prev.includes(eventId);
+      setEvents(allEvents => allEvents.map(evt => {
+        if (evt.id === eventId) {
+          const currentLikes = getEventLikes(evt);
+          return {
+            ...evt,
+            likes: isLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1
+          };
+        }
+        return evt;
+      }));
+
+      if (isLiked) {
+        showToast('Removido dos favoritos');
+        return prev.filter(id => id !== eventId);
+      } else {
+        showToast('Gostaste deste evento!');
+        return [...prev, eventId];
       }
     });
   };
@@ -4909,21 +4959,7 @@ export default function App() {
                           {/* Info Content Section */}
                           <div className="event-detail-info">
                             <div className="event-detail-title-row" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                              <div style={{ display: 'inline-flex', alignItems: 'center', position: 'relative' }}>
-                                <h2 className="event-detail-title" style={{ margin: 0, textAlign: 'center' }}>{currentEvent.title}</h2>
-                                {currentUser && (
-                                  <button
-                                    className={`event-bookmark-btn ${savedEvents.includes(currentEvent.id) ? 'active' : ''}`}
-                                    onClick={() => toggleSaveEvent(currentEvent.id)}
-                                    aria-label="Guardar Evento"
-                                    style={{ position: 'absolute', left: '100%', marginLeft: '8px', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
-                                  >
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill={savedEvents.includes(currentEvent.id) ? "var(--primary)" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                                    </svg>
-                                  </button>
-                                )}
-                              </div>
+                              <h2 className="event-detail-title" style={{ margin: 0, textAlign: 'center' }}>{currentEvent.title}</h2>
                             </div>
                             <p className="event-detail-subtitle">{currentEvent.subtitle || currentEvent.description}</p>
 
@@ -4969,6 +5005,48 @@ export default function App() {
                                   {currentEvent.organizerLabel || currentEvent.organizer}
                                 </span>
                               </div>
+                            </div>
+
+                            {/* Event Actions Bar: Like, Save, Share */}
+                            <div className="event-detail-actions-bar">
+                              <button 
+                                type="button" 
+                                className={`event-detail-action-btn like-btn ${likedEvents.includes(currentEvent.id) ? 'active' : ''}`} 
+                                onClick={() => toggleLikeEvent(currentEvent.id)}
+                              >
+                                <svg viewBox="0 0 24 24" fill={likedEvents.includes(currentEvent.id) ? "#ff3b30" : "none"} stroke={likedEvents.includes(currentEvent.id) ? "#ff3b30" : "currentColor"} strokeWidth="2.5">
+                                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                                <span>{getEventLikes(currentEvent)} Likes</span>
+                              </button>
+
+                              {currentUser && (
+                                <button 
+                                  type="button" 
+                                  className={`event-detail-action-btn save-btn ${savedEvents.includes(currentEvent.id) ? 'active' : ''}`} 
+                                  onClick={() => toggleSaveEvent(currentEvent.id)}
+                                >
+                                  <svg viewBox="0 0 24 24" fill={savedEvents.includes(currentEvent.id) ? "var(--primary)" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                  </svg>
+                                  <span>{savedEvents.includes(currentEvent.id) ? 'Guardado' : 'Guardar'}</span>
+                                </button>
+                              )}
+
+                              <button 
+                                type="button" 
+                                className="event-detail-action-btn share-btn" 
+                                onClick={() => handleShareEventClick(currentEvent)}
+                              >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="18" cy="5" r="3"/>
+                                  <circle cx="6" cy="12" r="3"/>
+                                  <circle cx="18" cy="19" r="3"/>
+                                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                                </svg>
+                                <span>Partilhar</span>
+                              </button>
                             </div>
                           </div>
 
