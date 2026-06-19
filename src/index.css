@@ -3830,6 +3830,7 @@ body {
   flex-direction: column;
   z-index: 1000;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
 }
 
@@ -3840,6 +3841,7 @@ body {
   min-height: 100%;
   width: 100%;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .auth-header {
@@ -4057,6 +4059,7 @@ body {
   width: 100%;
   background-color: #ffffff;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .auth-form {
@@ -4064,7 +4067,9 @@ body {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  justify-content: center;
+  justify-content: flex-start;
+  margin-top: auto;
+  margin-bottom: auto;
   box-sizing: border-box;
 }
 
