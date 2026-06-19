@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import L from 'leaflet';
 import './App.css';
 
@@ -2140,6 +2140,57 @@ export default function App() {
   const [hasSeenCameraOnboarding, setHasSeenCameraOnboarding] = useState(false);
   const [eventSearchQuery, setEventSearchQuery] = useState('');
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
+  const [isProfileSearchOpen, setIsProfileSearchOpen] = useState(false);
+  const [profileSearchQuery, setProfileSearchQuery] = useState('');
+
+  // Collect unique profiles from active events and moments dynamically
+  const allProfiles = useMemo(() => {
+    const profileMap = new Map();
+
+    // Add current user if exists
+    if (currentUser) {
+      profileMap.set(currentUser.name.toLowerCase(), {
+        name: currentUser.name,
+        avatar: currentUser.avatar || '/assets/profile.svg',
+        isMe: true,
+        role: currentUser.accountType || 'Pessoal'
+      });
+    }
+
+    // Add organizers from events
+    events.forEach(e => {
+      if (e.organizer && !profileMap.has(e.organizer.toLowerCase())) {
+        profileMap.set(e.organizer.toLowerCase(), {
+          name: e.organizer,
+          avatar: e.logo || e.organizerLogo || '/assets/profile.svg',
+          role: 'Organização'
+        });
+      }
+    });
+
+    // Add authors from moments
+    moments.forEach(m => {
+      if (m.authorName && !profileMap.has(m.authorName.toLowerCase())) {
+        const isOrganizer = events.some(e => e.organizer && e.organizer.toLowerCase() === m.authorName.toLowerCase());
+        profileMap.set(m.authorName.toLowerCase(), {
+          name: m.authorName,
+          avatar: m.authorAvatar || '/assets/profile.svg',
+          role: isOrganizer ? 'Organização' : 'Pessoal'
+        });
+      }
+    });
+
+    return Array.from(profileMap.values());
+  }, [events, moments, currentUser]);
+
+  const filteredProfiles = useMemo(() => {
+    if (!profileSearchQuery.trim()) {
+      return allProfiles;
+    }
+    const q = profileSearchQuery.toLowerCase();
+    return allProfiles.filter(p => p.name.toLowerCase().includes(q));
+  }, [allProfiles, profileSearchQuery]);
+
   const [postTitle, setPostTitle] = useState('');
   const [postTag1, setPostTag1] = useState('');
   const [postTag2, setPostTag2] = useState('');
@@ -4602,16 +4653,28 @@ export default function App() {
                     <span className="regular">polariscope</span>
                   </h1>
                 </div>
-                <button
-                  className="header-profile-btn"
-                  onClick={() => openUserProfile(currentUser ? currentUser.name : 'Eu', currentUser ? currentUser.avatar : '/assets/profile.svg')}
-                  aria-label="Perfil"
-                >
-                  <svg width="18" height="18" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 15.5C18.038 15.5 20.5 13.038 20.5 10C20.5 6.962 18.038 4.5 15 4.5C11.962 4.5 9.5 6.962 9.5 10C9.5 13.038 11.962 15.5 15 15.5Z" fill="white" />
-                    <path d="M5.375 28C5.375 21.95 10.325 18 15 18C19.675 18 24.625 21.95 24.625 28" fill="white" />
-                  </svg>
-                </button>
+                <div className="header-actions-container">
+                  <button
+                    className="header-search-btn"
+                    onClick={() => setIsProfileSearchOpen(true)}
+                    aria-label="Pesquisar Perfis"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </button>
+                  <button
+                    className="header-profile-btn"
+                    onClick={() => openUserProfile(currentUser ? currentUser.name : 'Eu', currentUser ? currentUser.avatar : '/assets/profile.svg')}
+                    aria-label="Perfil"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 15.5C18.038 15.5 20.5 13.038 20.5 10C20.5 6.962 18.038 4.5 15 4.5C11.962 4.5 9.5 6.962 9.5 10C9.5 13.038 11.962 15.5 15 15.5Z" fill="white" />
+                      <path d="M5.375 28C5.375 21.95 10.325 18 15 18C19.675 18 24.625 21.95 24.625 28" fill="white" />
+                    </svg>
+                  </button>
+                </div>
               </header>
             )}
 
@@ -7085,7 +7148,91 @@ export default function App() {
             </div>
           </div>
         )}
+        {/* --- PROFILE SEARCH OVERLAY --- */}
+        {isProfileSearchOpen && (
+          <div className="profile-search-overlay" onClick={() => setIsProfileSearchOpen(false)}>
+            <div className="profile-search-modal" onClick={(e) => e.stopPropagation()}>
+              <header className="profile-search-header">
+                <div className="profile-search-input-wrapper">
+                  <svg className="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Pesquisar perfis..."
+                    value={profileSearchQuery}
+                    onChange={(e) => setProfileSearchQuery(e.target.value)}
+                    className="profile-search-input"
+                    autoFocus
+                  />
+                  {profileSearchQuery && (
+                    <button className="search-clear-btn" onClick={() => setProfileSearchQuery('')} aria-label="Limpar">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <button className="profile-search-close" onClick={() => setIsProfileSearchOpen(false)} aria-label="Fechar">
+                  Cancelar
+                </button>
+              </header>
 
+              <div className="profile-search-results">
+                {filteredProfiles.length > 0 ? (
+                  <>
+                    <div className="results-section-title">
+                      {profileSearchQuery ? 'Resultados da Pesquisa' : 'Sugestões de Perfis'}
+                    </div>
+                    <div className="profile-results-list">
+                      {filteredProfiles.map((p) => (
+                        <div
+                          key={p.name}
+                          className="profile-search-item"
+                          onClick={() => {
+                            openUserProfile(p.name, p.avatar);
+                            setIsProfileSearchOpen(false);
+                            setProfileSearchQuery('');
+                          }}
+                        >
+                          <img
+                            src={p.avatar}
+                            alt={p.name}
+                            className="profile-search-item-avatar"
+                            onError={(e) => {
+                              e.target.src = '/assets/profile.svg';
+                            }}
+                          />
+                          <div className="profile-search-item-info">
+                            <span className="profile-search-item-name">{p.name}</span>
+                            <span className={`profile-search-item-badge ${p.isMe ? 'badge-me' : p.role === 'Organização' ? 'badge-org' : 'badge-personal'}`}>
+                              {p.isMe ? 'Eu' : p.role}
+                            </span>
+                          </div>
+                          <svg className="profile-search-item-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="profile-search-empty">
+                    <svg className="empty-search-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                    <p className="empty-title">Nenhum perfil encontrado</p>
+                    <p className="empty-subtitle">Não encontrámos nenhum perfil correspondente a "{profileSearchQuery}".</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
