@@ -1703,7 +1703,7 @@ export default function App() {
       authorAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&auto=format&fit=crop&q=60',
       eventTitle: 'Workshop de Cerâmica Vista Alegre',
       location: 'Fábrica Vista Alegre, Ílhavo',
-      photo: 'https://images.unsplash.com/photo-1576016770956-debb63d900fe?w=600&auto=format&fit=crop&q=80',
+      photo: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80',
       title: 'A modelar o barro',
       description: 'Primeira vez na roda de oleiro na Fábrica Vista Alegre. Uma experiência terapêutica fantástica!',
       time: 'Há 1 dia',
@@ -2391,7 +2391,7 @@ export default function App() {
           'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=600&auto=format&fit=crop&q=80',
           'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=600&auto=format&fit=crop&q=80',
           'https://images.unsplash.com/photo-1606744824163-985d376605aa?w=600&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1576016770956-debb63d900fe?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80',
           'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600&auto=format&fit=crop&q=80'
         ],
         titles: [
