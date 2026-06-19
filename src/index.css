@@ -5338,8 +5338,7 @@ input:checked + .slider::before {
   box-shadow: 0 0 0 2px var(--primary), 0 4px 12px rgba(241, 117, 34, 0.4);
   pointer-events: none;
   opacity: 0;
-  transform: scale(0.9);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease;
   animation: mock-outline-cycle 4s infinite ease-in-out;
 }
 
@@ -5404,8 +5403,8 @@ input:checked + .slider::before {
 }
 
 @keyframes mock-outline-cycle {
-  0%, 35%, 90%, 100% { opacity: 0; transform: scale(0.9); }
-  40%, 85% { opacity: 1; transform: scale(1); }
+  0%, 35%, 90%, 100% { opacity: 0; }
+  40%, 85% { opacity: 1; }
 }
 
 /* Backdrop do onboarding da câmara */
