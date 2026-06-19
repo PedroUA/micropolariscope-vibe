@@ -2731,7 +2731,7 @@ export default function App() {
       // Keep GPS location arrow marker
       L.marker(USER_LOCATION, { icon: userIcon })
         .addTo(map)
-        .bindPopup('Minha Localização Atual (GPS)');
+        .bindPopup('Minha Posição (GPS)');
 
       // Custom target icon for radius center
       const centerIcon = L.divIcon({
@@ -2751,7 +2751,7 @@ export default function App() {
       // Target pin marker for search radius center
       const centerMarker = L.marker(radiusCenter, { icon: centerIcon, draggable: true })
         .addTo(map)
-        .bindPopup('Foco da Pesquisa (Arraste para mover ou clique no mapa para redefinir)');
+        .bindPopup('Foco da Pesquisa (Arraste)');
 
       centerMarker.on('dragend', (e) => {
         const newPos = e.target.getLatLng();
@@ -3210,7 +3210,7 @@ export default function App() {
   // Save Post as Draft
   const handleSaveDraft = () => {
     if (!capturedPhoto) {
-      alert('Tira uma foto antes de guardar o rascunho.');
+      showToast('Tira uma foto primeiro!');
       return;
     }
 
@@ -3229,7 +3229,7 @@ export default function App() {
     };
 
     setDrafts([...drafts, newDraft]);
-    alert(`Rascunho "${newDraft.title}" guardado com sucesso!`);
+    showToast('Rascunho guardado!');
 
     // Reset camera state
     setCapturedPhoto(null);
@@ -3252,15 +3252,15 @@ export default function App() {
     if (!capturedPhoto) return;
 
     if (!newPostEventId) {
-      alert('Por favor, seleciona um evento antes de publicar.');
+      showToast('Seleciona um evento.');
       return;
     }
     if (!newPostLocation || !newPostLocation.trim()) {
-      alert('Por favor, define uma localização antes de publicar.');
+      showToast('Define a localização.');
       return;
     }
     if (!postTitle.trim()) {
-      alert('Por favor, escreve um título antes de publicar.');
+      showToast('Escreve um título.');
       return;
     }
 
@@ -3668,7 +3668,7 @@ export default function App() {
   };
 
   const deleteDraft = (draftId) => {
-    if (window.confirm('Tem a certeza que quer eliminar este rascunho?')) {
+    if (window.confirm('Eliminar rascunho?')) {
       setDrafts(prev => prev.filter(d => d.id !== draftId));
       showToast('Rascunho eliminado.');
     }
