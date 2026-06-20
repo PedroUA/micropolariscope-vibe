@@ -4443,53 +4443,55 @@ export default function App() {
                   </svg>
                 </button>
 
-                <form className="auth-form" onSubmit={handleLogin} style={{ padding: '24px 30px' }}>
-                  <h3 className="register-title">Iniciar sessão</h3>
+                <form className="auth-form" onSubmit={handleLogin}>
+                  <div className="auth-form-content">
+                    <h3 className="register-title">Iniciar sessão</h3>
 
-                  {loginError && <div className="auth-error-msg">{loginError}</div>}
+                    {loginError && <div className="auth-error-msg">{loginError}</div>}
 
-                  <div className="register-field-group">
-                    <label htmlFor="login-email" className="register-label">Email</label>
-                    <input
-                      type="email"
-                      id="login-email"
-                      className="register-input"
-                      placeholder="Email"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      required
-                    />
-                  </div>
+                    <div className="register-field-group">
+                      <label htmlFor="login-email" className="register-label">Email</label>
+                      <input
+                        type="email"
+                        id="login-email"
+                        className="register-input"
+                        placeholder="Email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        required
+                      />
+                    </div>
 
-                  <div className="register-field-group" style={{ marginBottom: '8px' }}>
-                    <label htmlFor="login-password" className="register-label">Palavra-passe</label>
-                    <input
-                      type="password"
-                      id="login-password"
-                      className="register-input"
-                      placeholder="Palavra-passe"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      required
-                    />
-                    <span
-                      className="login-forgot-password"
-                      onClick={() => showToast("Recuperação de palavra-passe enviada!")}
+                    <div className="register-field-group" style={{ marginBottom: '8px' }}>
+                      <label htmlFor="login-password" className="register-label">Palavra-passe</label>
+                      <input
+                        type="password"
+                        id="login-password"
+                        className="register-input"
+                        placeholder="Palavra-passe"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        required
+                      />
+                      <span
+                        className="login-forgot-password"
+                        onClick={() => showToast("Recuperação de palavra-passe enviada!")}
+                      >
+                        Esqueceste-te da palavra-passe?
+                      </span>
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className={`register-submit-btn ${loginEmail.trim() && loginPassword.trim() ? 'filled' : ''}`} 
+                      style={{ marginTop: '24px' }}
                     >
-                      Esqueceste-te da palavra-passe?
-                    </span>
-                  </div>
+                      Inicia sessão
+                    </button>
 
-                  <button 
-                    type="submit" 
-                    className={`register-submit-btn ${loginEmail.trim() && loginPassword.trim() ? 'filled' : ''}`} 
-                    style={{ marginTop: '24px' }}
-                  >
-                    Inicia sessão
-                  </button>
-
-                  <div className="auth-guest-link" style={{ marginTop: '16px', textAlign: 'center' }}>
-                    ...ou entra como <span className="visitor-underlined" onClick={handleGuestLogin}>Visitante</span>
+                    <div className="auth-guest-link" style={{ marginTop: '16px', textAlign: 'center' }}>
+                      ...ou entra como <span className="visitor-underlined" onClick={handleGuestLogin}>Visitante</span>
+                    </div>
                   </div>
                 </form>
               </div>
@@ -4513,116 +4515,118 @@ export default function App() {
                   </svg>
                 </button>
 
-                <form className="auth-form" onSubmit={handleRegister} style={{ padding: '24px 30px' }}>
-                  <h3 className="register-title">Criar conta</h3>
+                <form className="auth-form" onSubmit={handleRegister}>
+                  <div className="auth-form-content">
+                    <h3 className="register-title">Criar conta</h3>
 
-                  {registerError && <div className="auth-error-msg">{registerError}</div>}
+                    {registerError && <div className="auth-error-msg">{registerError}</div>}
 
-                  {/* Profile Avatar Selection Card */}
-                  <div className="auth-avatar-selection-card" onClick={() => profileAvatarInputRef.current && profileAvatarInputRef.current.click()}>
-                    <div className="auth-avatar-selection-wrapper">
-                      <img src={registerAvatar} alt="Profile Avatar" className="auth-avatar-selection-img" />
-                      <div className="auth-avatar-selection-badge">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                          <circle cx="12" cy="13" r="4"/>
-                        </svg>
-                      </div>
-                    </div>
-                    <span className="auth-avatar-selection-label">Escolher foto de perfil</span>
-                  </div>
-
-                  <div className="register-field-group">
-                    <label htmlFor="register-name" className="register-label">Nome</label>
-                    <input
-                      type="text"
-                      id="register-name"
-                      className="register-input"
-                      placeholder="Nome"
-                      value={registerName}
-                      onChange={(e) => setRegisterName(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="register-field-group">
-                    <label htmlFor="register-email" className="register-label">Email</label>
-                    <input
-                      type="email"
-                      id="register-email"
-                      className="register-input"
-                      placeholder="Email"
-                      value={registerEmail}
-                      onChange={(e) => setRegisterEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="register-field-group">
-                    <label htmlFor="register-password" className="register-label">Palavra-passe</label>
-                    <input
-                      type="password"
-                      id="register-password"
-                      className="register-input"
-                      placeholder="Palavra-passe"
-                      value={registerPassword}
-                      onChange={(e) => setRegisterPassword(e.target.value)}
-                      required
-                    />
-                    <span className="register-field-hint">Deve ter no minimo 8 caracteres</span>
-                  </div>
-
-                  <div className="register-field-group">
-                    <label htmlFor="register-confirm-password" className="register-label">Confirmar palavra-passe</label>
-                    <input
-                      type="password"
-                      id="register-confirm-password"
-                      className="register-input"
-                      placeholder="Palavra-passe"
-                      value={registerConfirmPassword}
-                      onChange={(e) => setRegisterConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="register-field-group">
-                    <span className="register-label">Tipo de conta</span>
-                    <div className="register-account-types">
-                      <div
-                        className="register-checkbox-label"
-                        onClick={() => setRegisterAccountType('Organização')}
-                      >
-                        <div className={`register-checkbox-custom ${registerAccountType === 'Organização' ? 'checked' : ''}`}>
-                          <svg viewBox="0 0 24 24">
-                            <polyline points="20 6 9 17 4 12" />
+                    {/* Profile Avatar Selection Card */}
+                    <div className="auth-avatar-selection-card" onClick={() => profileAvatarInputRef.current && profileAvatarInputRef.current.click()}>
+                      <div className="auth-avatar-selection-wrapper">
+                        <img src={registerAvatar} alt="Profile Avatar" className="auth-avatar-selection-img" />
+                        <div className="auth-avatar-selection-badge">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
                           </svg>
                         </div>
-                        <span>Organização</span>
                       </div>
+                      <span className="auth-avatar-selection-label">Escolher foto de perfil</span>
+                    </div>
 
-                      <div
-                        className="register-checkbox-label"
-                        onClick={() => setRegisterAccountType('Pessoal')}
-                      >
-                        <div className={`register-checkbox-custom ${registerAccountType === 'Pessoal' ? 'checked' : ''}`}>
-                          <svg viewBox="0 0 24 24">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
+                    <div className="register-field-group">
+                      <label htmlFor="register-name" className="register-label">Nome</label>
+                      <input
+                        type="text"
+                        id="register-name"
+                        className="register-input"
+                        placeholder="Nome"
+                        value={registerName}
+                        onChange={(e) => setRegisterName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="register-field-group">
+                      <label htmlFor="register-email" className="register-label">Email</label>
+                      <input
+                        type="email"
+                        id="register-email"
+                        className="register-input"
+                        placeholder="Email"
+                        value={registerEmail}
+                        onChange={(e) => setRegisterEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="register-field-group">
+                      <label htmlFor="register-password" className="register-label">Palavra-passe</label>
+                      <input
+                        type="password"
+                        id="register-password"
+                        className="register-input"
+                        placeholder="Palavra-passe"
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
+                        required
+                      />
+                      <span className="register-field-hint">Deve ter no minimo 8 caracteres</span>
+                    </div>
+
+                    <div className="register-field-group">
+                      <label htmlFor="register-confirm-password" className="register-label">Confirmar palavra-passe</label>
+                      <input
+                        type="password"
+                        id="register-confirm-password"
+                        className="register-input"
+                        placeholder="Palavra-passe"
+                        value={registerConfirmPassword}
+                        onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="register-field-group">
+                      <span className="register-label">Tipo de conta</span>
+                      <div className="register-account-types">
+                        <div
+                          className="register-checkbox-label"
+                          onClick={() => setRegisterAccountType('Organização')}
+                        >
+                          <div className={`register-checkbox-custom ${registerAccountType === 'Organização' ? 'checked' : ''}`}>
+                            <svg viewBox="0 0 24 24">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                          <span>Organização</span>
                         </div>
-                        <span>Pessoal</span>
+
+                        <div
+                          className="register-checkbox-label"
+                          onClick={() => setRegisterAccountType('Pessoal')}
+                        >
+                          <div className={`register-checkbox-custom ${registerAccountType === 'Pessoal' ? 'checked' : ''}`}>
+                            <svg viewBox="0 0 24 24">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                          <span>Pessoal</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <button 
-                    type="submit" 
-                    className={`register-submit-btn ${registerName.trim() && registerEmail.trim() && registerPassword.trim() && registerConfirmPassword.trim() ? 'filled' : ''}`}
-                  >
-                    Criar conta
-                  </button>
+                    <button 
+                      type="submit" 
+                      className={`register-submit-btn ${registerName.trim() && registerEmail.trim() && registerPassword.trim() && registerConfirmPassword.trim() ? 'filled' : ''}`}
+                    >
+                      Criar conta
+                    </button>
 
-                  <div className="auth-guest-link" style={{ marginTop: '16px', textAlign: 'center' }}>
-                    ...ou entra como <span className="visitor-underlined" onClick={handleGuestLogin}>Visitante</span>
+                    <div className="auth-guest-link" style={{ marginTop: '16px', textAlign: 'center' }}>
+                      ...ou entra como <span className="visitor-underlined" onClick={handleGuestLogin}>Visitante</span>
+                    </div>
                   </div>
                 </form>
               </div>

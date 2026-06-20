@@ -4091,11 +4091,18 @@ body {
 }
 
 .auth-form {
-  padding: 40px 30px;
+  padding: 24px 30px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.auth-form-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   margin-top: auto;
   margin-bottom: auto;
   box-sizing: border-box;
