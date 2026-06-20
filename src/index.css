@@ -5663,15 +5663,17 @@ input:checked + .slider::before {
   gap: 12px;
   padding: 10px 12px;
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.2s;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .profile-search-item:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #f8fafc;
   transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .profile-search-item:active {
@@ -5683,8 +5685,8 @@ input:checked + .slider::before {
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(241, 117, 34, 0.15);
+  background-color: #f1f5f9;
 }
 
 .profile-search-item-info {
@@ -5695,14 +5697,14 @@ input:checked + .slider::before {
 }
 
 .profile-search-item-name {
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14.5px;
 }
 
 .profile-search-item-badge {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
   align-self: flex-start;
@@ -5711,30 +5713,30 @@ input:checked + .slider::before {
 }
 
 .badge-me {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: rgba(241, 117, 34, 0.1);
+  color: #f17522;
+  border: 1px solid rgba(241, 117, 34, 0.25);
 }
 
 .badge-org {
-  background-color: white;
-  color: #f17522;
-  border: 1px solid white;
+  background-color: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.25);
 }
 
 .badge-personal {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background-color: rgba(14, 165, 233, 0.1);
+  color: #0ea5e9;
+  border: 1px solid rgba(14, 165, 233, 0.25);
 }
 
 .profile-search-item-chevron {
-  color: rgba(255, 255, 255, 0.6);
+  color: #94a3b8;
   transition: color 0.2s;
 }
 
 .profile-search-item:hover .profile-search-item-chevron {
-  color: white;
+  color: var(--primary);
 }
 
 /* Empty search state */
