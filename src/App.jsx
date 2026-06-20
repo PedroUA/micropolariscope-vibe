@@ -3549,6 +3549,13 @@ export default function App() {
     setLoginScreen('login');
   };
 
+  const handleInputFocus = (e) => {
+    const target = e.target;
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 280);
+  };
+
   const handleRegister = (e) => {
     e.preventDefault();
     if (!registerName.trim() || !registerEmail.trim() || !registerPassword.trim() || !registerConfirmPassword.trim()) {
@@ -4492,6 +4499,7 @@ export default function App() {
                         placeholder="Email"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
+                        onFocus={handleInputFocus}
                         required
                       />
                     </div>
@@ -4505,6 +4513,7 @@ export default function App() {
                         placeholder="Palavra-passe"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
+                        onFocus={handleInputFocus}
                         required
                       />
                       <span
@@ -4578,6 +4587,7 @@ export default function App() {
                         placeholder="Nome"
                         value={registerName}
                         onChange={(e) => setRegisterName(e.target.value)}
+                        onFocus={handleInputFocus}
                         required
                       />
                     </div>
@@ -4591,6 +4601,7 @@ export default function App() {
                         placeholder="Email"
                         value={registerEmail}
                         onChange={(e) => setRegisterEmail(e.target.value)}
+                        onFocus={handleInputFocus}
                         required
                       />
                     </div>
@@ -4604,6 +4615,7 @@ export default function App() {
                         placeholder="Palavra-passe"
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
+                        onFocus={handleInputFocus}
                         required
                       />
                       <span className="register-field-hint">Deve ter no minimo 8 caracteres</span>
@@ -4618,6 +4630,7 @@ export default function App() {
                         placeholder="Palavra-passe"
                         value={registerConfirmPassword}
                         onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+                        onFocus={handleInputFocus}
                         required
                       />
                     </div>
