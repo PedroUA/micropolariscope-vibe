@@ -1703,7 +1703,7 @@ export default function App() {
       authorAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&auto=format&fit=crop&q=60',
       eventTitle: 'Workshop de Cerâmica Vista Alegre',
       location: 'Fábrica Vista Alegre, Ílhavo',
-      photo: 'https://images.unsplash.com/photo-1576016770956-debb63d900fe?w=600&auto=format&fit=crop&q=80',
+      photo: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80',
       title: 'A modelar o barro',
       description: 'Primeira vez na roda de oleiro na Fábrica Vista Alegre. Uma experiência terapêutica fantástica!',
       time: 'Há 1 dia',
@@ -2391,7 +2391,7 @@ export default function App() {
           'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=600&auto=format&fit=crop&q=80',
           'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=600&auto=format&fit=crop&q=80',
           'https://images.unsplash.com/photo-1606744824163-985d376605aa?w=600&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1576016770956-debb63d900fe?w=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80',
           'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600&auto=format&fit=crop&q=80'
         ],
         titles: [
@@ -2602,11 +2602,22 @@ export default function App() {
   const [isMapCenteredOnUser, setIsMapCenteredOnUser] = useState(false);
   const [hasSeenMapOnboarding, setHasSeenMapOnboarding] = useState(false);
   const [feedOnboardingStep, setFeedOnboardingStep] = useState(1); // 1 = Step 1: Hierarchy, 2 = Step 2: Long press focus, null = Hidden
+  const [isInPhoneShell, setIsInPhoneShell] = useState(() => {
+    return window.innerWidth > 500 && window.innerHeight > 900 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showFullscreenPopup, setShowFullscreenPopup] = useState(true);
+  const [showFullscreenPopup, setShowFullscreenPopup] = useState(() => {
+    const isShell = window.innerWidth > 500 && window.innerHeight > 900 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return !isShell;
+  });
 
   useEffect(() => {
     const handleFullscreenChange = () => {
+      const isShell = window.innerWidth > 500 && window.innerHeight > 900 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isShell) {
+        setIsFullscreen(false);
+        return;
+      }
       const isNativeFull = !!(
         document.fullscreenElement ||
         document.webkitFullscreenElement ||
@@ -2615,42 +2626,66 @@ export default function App() {
       );
       setIsFullscreen(isNativeFull);
     };
+
+    const handleResize = () => {
+      const isShell = window.innerWidth > 500 && window.innerHeight > 900 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsInPhoneShell(isShell);
+      if (isShell) {
+        setShowFullscreenPopup(false);
+        setIsFullscreen(false);
+      }
+    };
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('mozfullscreenchange', handleFullscreenChange);
     document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    window.addEventListener('resize', handleResize);
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
       document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   const toggleFullscreen = () => {
-    const hasRequestFullscreen = typeof document.documentElement.requestFullscreen === 'function';
-    const hasWebkitRequestFullscreen = typeof document.documentElement.webkitRequestFullscreen === 'function';
+    if (isInPhoneShell) {
+      // Fullscreen has no effect while inside the phone shell simulator
+      return;
+    }
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      const hasRequestFullscreen = typeof document.documentElement.requestFullscreen === 'function';
+      const hasWebkitRequestFullscreen = typeof document.documentElement.webkitRequestFullscreen === 'function';
 
-    if (hasRequestFullscreen) {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.error(`Error entering fullscreen: ${err.message}`);
-          setIsFullscreen(true);
-        });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
+      if (hasRequestFullscreen) {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Error entering fullscreen: ${err.message}`);
+            setIsFullscreen(true);
+          });
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
         }
-      }
-    } else if (hasWebkitRequestFullscreen) {
-      if (!document.webkitFullscreenElement) {
-        document.documentElement.webkitRequestFullscreen();
-      } else {
-        if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
+      } else if (hasWebkitRequestFullscreen) {
+        if (!document.webkitFullscreenElement) {
+          document.documentElement.webkitRequestFullscreen();
+        } else {
+          if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
         }
+      } else {
+        setIsFullscreen(prev => !prev);
       }
     } else {
+      // On PC/desktop, only toggle the layout fullscreen state (handled via CSS styling on .phone-shell)
       setIsFullscreen(prev => !prev);
     }
   };
@@ -3157,8 +3192,11 @@ export default function App() {
         videoRef.current.srcObject = stream;
       }
 
-      // Auto re-enter fullscreen if the browser exited it during the system permission prompt
+      // Auto re-enter fullscreen if the browser exited it during the system permission prompt (mobile only)
       setTimeout(() => {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (!isMobile) return;
+
         const hasRequestFullscreen = typeof document.documentElement.requestFullscreen === 'function';
         const hasWebkitRequestFullscreen = typeof document.documentElement.webkitRequestFullscreen === 'function';
         const isCurrentlyFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -4244,87 +4282,83 @@ export default function App() {
                 </header>
 
                 <div className="welcome-body" style={{ position: 'relative' }}>
-                  {/* Fullscreen button in white body (top-left) */}
-                  <button
-                    onClick={toggleFullscreen}
-                    className="fullscreen-body-btn"
-                    style={{
-                      position: 'absolute',
-                      top: '12px',
-                      left: '16px',
-                      background: 'rgba(241, 117, 34, 0.08)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      cursor: 'pointer',
-                      color: 'var(--primary)',
-                      fontSize: '10px',
-                      fontWeight: '700',
-                      fontFamily: 'var(--font-family)',
-                      zIndex: 10,
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
-                    }}
-                  >
-                    {isFullscreen ? (
-                      <>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
-                        </svg>
-                        <span>Janela</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
-                        </svg>
-                        <span>Ecrã Inteiro</span>
-                      </>
-                    )}
-                  </button>
+                  {/* Fullscreen button in white body (top-left) - only rendered if not in simulated phone shell */}
+                  {!isInPhoneShell && (
+                    <button
+                      onClick={toggleFullscreen}
+                      className="fullscreen-body-btn"
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '16px',
+                        background: 'rgba(241, 117, 34, 0.08)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '6px 10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        cursor: 'pointer',
+                        color: 'var(--primary)',
+                        fontSize: '10px',
+                        fontWeight: '700',
+                        fontFamily: 'var(--font-family)',
+                        zIndex: 10,
+                        boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+                      }}
+                    >
+                      {isFullscreen ? (
+                        <>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                          </svg>
+                          <span>Janela</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+                          </svg>
+                          <span>Ecrã Inteiro</span>
+                        </>
+                      )}
+                    </button>
+                  )}
 
                   <h2 className="welcome-title">Olá!</h2>
 
-                  <div className="welcome-logo-large">
-                    <svg width="213" height="208" viewBox="0 0 213 208" fill="none" xmlns="http://www.w3.org/2000/svg" className="animated-pentagon-logo">
-                      <defs>
-                        {/* Mask made of the pentagon lines */}
-                        <mask id="pentagon-lines-mask">
-                          <path
-                            d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069"
-                            stroke="white"
-                            strokeWidth="10.3226"
-                            strokeMiterlimit="3.99393"
-                          />
-                        </mask>
-
-                        {/* Gradient color Definition */}
-                        <linearGradient id="logo-gradient" x1="106.227" y1="4.06885" x2="106.227" y2="208.241" gradientUnits="userSpaceOnUse">
-                          <stop stopColor="#F77E1A" />
-                          <stop offset="1" stopColor="#F7AD1A" />
-                        </linearGradient>
-                      </defs>
-
-                      {/* Stacked image layers clipped to the pentagon lines */}
-                      <g mask="url(#pentagon-lines-mask)">
-                        <rect width="213" height="208" fill="#e2e8f0" />
-                        <image href="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-1" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
-                        <image href="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-2" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
-                        <image href="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-3" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
-                        <image href="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-4" x="0" y="0" width="213" height="208" preserveAspectRatio="xMidYMid slice" />
-                      </g>
-
-                      {/* Gradient outline lines overlay */}
-                      <path
-                        className="pentagon-gradient-path"
-                        d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069"
-                        stroke="url(#logo-gradient)"
-                        strokeWidth="10.3226"
-                        strokeMiterlimit="3.99393"
-                      />
-                    </svg>
+                  <div className="welcome-logo-float-wrapper">
+                    <div className="welcome-logo-large">
+                      <svg width="225" height="220" viewBox="-6 -6 225 220" fill="none" xmlns="http://www.w3.org/2000/svg" className="animated-pentagon-logo">
+                        <defs>
+                          <mask id="pentagon-lines-mask">
+                            <path
+                              d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069"
+                              stroke="white"
+                              strokeWidth="10.3226"
+                              strokeMiterlimit="3.99393"
+                            />
+                          </mask>
+                          <linearGradient id="logo-gradient" x1="106.227" y1="4.06885" x2="106.227" y2="208.241" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#F77E1A" />
+                            <stop offset="1" stopColor="#F7AD1A" />
+                          </linearGradient>
+                        </defs>
+                        <g mask="url(#pentagon-lines-mask)">
+                          <image href="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-1" x="-6" y="-6" width="225" height="220" preserveAspectRatio="xMidYMid slice" />
+                          <image href="https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-2" x="-6" y="-6" width="225" height="220" preserveAspectRatio="xMidYMid slice" />
+                          <image href="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-3" x="-6" y="-6" width="225" height="220" preserveAspectRatio="xMidYMid slice" />
+                          <image href="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=300&auto=format&fit=crop&q=80" className="pentagon-img pentagon-img-4" x="-6" y="-6" width="225" height="220" preserveAspectRatio="xMidYMid slice" />
+                        </g>
+                        <path
+                          className="pentagon-gradient-path"
+                          d="M177.074 171.316L207.13 77.9183M157.752 169.144L192.102 64.8861M177.074 184.348H71.8766M78.3172 201.725H172.78M121.255 169.144L138.43 119.187M140.577 169.144L153.458 130.047M121.255 86.6065L162.046 117.015M134.136 73.5742L166.339 99.6387M104.08 4.06885L179.221 62.714M89.0516 17.1011L172.78 80.0904M78.3172 27.9613L3.13013 85.308M93.3454 38.8215L9.61701 103.983M108.374 51.8538L76.1703 75.7463M123.402 62.714L82.611 93.1226M63.289 82.2624L80.4641 132.219M48.2609 95.2947L61.1422 132.219M61.1422 147.424H112.667M67.5828 166.972H108.374M33.2327 103.983L65.4359 206.069M18.2045 117.015L46.114 206.069"
+                          stroke="url(#logo-gradient)"
+                          strokeWidth="11.5"
+                          strokeMiterlimit="3.99393"
+                        />
+                      </svg>
+                    </div>
                   </div>
 
                   <p className="welcome-subtitle">
@@ -4347,7 +4381,7 @@ export default function App() {
 
                   {/* Version badge */}
                   <div className="prototype-version-badge" style={{ fontSize: '10px', color: '#94a3b8', marginTop: '16px', fontWeight: '500', fontFamily: 'var(--font-family)', letterSpacing: '0.5px' }}>
-                    Protótipo v1.5.a
+                    Protótipo v1.6.a
                   </div>
                 </div>
 
@@ -7105,29 +7139,31 @@ export default function App() {
                   <span>Definições de Notificações</span>
                 </button>
 
-                <button
-                  className="settings-action-row"
-                  onClick={() => {
-                    toggleFullscreen();
-                    setIsSettingsOpen(false);
-                  }}
-                >
-                  {isFullscreen ? (
-                    <>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
-                      </svg>
-                      <span>Sair de Ecrã Inteiro</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
-                      </svg>
-                      <span>Entrar em Ecrã Inteiro</span>
-                    </>
-                  )}
-                </button>
+                {!isInPhoneShell && (
+                  <button
+                    className="settings-action-row"
+                    onClick={() => {
+                      toggleFullscreen();
+                      setIsSettingsOpen(false);
+                    }}
+                  >
+                    {isFullscreen ? (
+                      <>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                        </svg>
+                        <span>Sair de Ecrã Inteiro</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3" />
+                        </svg>
+                        <span>Entrar em Ecrã Inteiro</span>
+                      </>
+                    )}
+                  </button>
+                )}
 
                 <button
                   className="settings-action-row logout-row"
@@ -7146,7 +7182,7 @@ export default function App() {
 
                 {/* Version badge inside settings */}
                 <div className="settings-version-badge" style={{ fontSize: '10px', color: '#94a3b8', marginTop: '20px', marginBottom: '8px', textAlign: 'center', fontWeight: '500', fontFamily: 'var(--font-family)', letterSpacing: '0.5px', width: '100%' }}>
-                  Protótipo v1.5.a
+                  Protótipo v1.6.a
                 </div>
               </div>
             </div>
