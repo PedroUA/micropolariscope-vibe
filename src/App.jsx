@@ -5510,7 +5510,44 @@ export default function App() {
                                   </>
                                 ) : (
                                   <>
-                                    <div className="feed-onboarding-icon">🎯</div>
+                                    <div className="feed-onboarding-icon">
+                                      <div className="onboarding-focus-demo">
+                                        <div className="onboarding-mock-bar">
+                                          {/* Event 1 (Left) - Feira */}
+                                          <div className="onboarding-mock-event event-1">
+                                            <div className="onboarding-mock-event-border">
+                                              <div className="onboarding-mock-event-img">
+                                                <img src="/mock_feira.jpg" alt="Feira" />
+                                              </div>
+                                            </div>
+                                            <span className="onboarding-mock-event-label">Feira</span>
+                                          </div>
+
+                                          {/* Event 2 (Middle) - Festival */}
+                                          <div className="onboarding-mock-event event-2">
+                                            <div className="onboarding-mock-event-border double-outline">
+                                              <div className="onboarding-mock-event-img">
+                                                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=120&auto=format&fit=crop&q=80" alt="Festival" />
+                                              </div>
+                                            </div>
+                                            <span className="onboarding-mock-event-label">Festival</span>
+                                            
+                                            {/* Hand Icon (maozinha) pointing finger (a apontar o dedo) */}
+                                            <img className="onboarding-tap-icon" src="/mock_hand.png" alt="Touch gesture" width="36" height="36" />
+                                          </div>
+
+                                          {/* Event 3 (Right) - Teatro */}
+                                          <div className="onboarding-mock-event event-3">
+                                            <div className="onboarding-mock-event-border">
+                                              <div className="onboarding-mock-event-img">
+                                                <img src="/mock_teatro.jpg" alt="Teatro" />
+                                              </div>
+                                            </div>
+                                            <span className="onboarding-mock-event-label">Teatro</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
                                     <h3 className="feed-onboarding-title">Modo Foco no Evento</h3>
                                     <p className="feed-onboarding-desc">
                                       Podes destacar um Evento para filtrar o feed instantaneamente:
