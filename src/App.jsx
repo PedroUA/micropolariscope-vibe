@@ -5465,14 +5465,14 @@ export default function App() {
                                       <div className="feed-onboarding-feature eventos-feature">
                                         <div>
                                           <strong>Eventos (Horizontal)</strong>
-                                          <p>A barra superior agrupa os Eventos que estão dentro do raio definido por ti.</p>
+                                          <p>A barra superior agrupa os Eventos que estão dentro da área definida por ti.</p>
                                         </div>
                                       </div>
 
                                       <div className="feed-onboarding-feature momentos-feature">
                                         <div>
                                           <strong>Momentos (Vertical)</strong>
-                                          <p>Dentro de cada Evento, encontras o feed de Momentos — fotografias e comentários partilhados pela comunidade.</p>
+                                          <p>Dentro de cada Evento, encontras os Momentos partilhados pela comunidade.</p>
                                         </div>
                                       </div>
                                     </div>
@@ -5486,44 +5486,7 @@ export default function App() {
                                   </>
                                 ) : (
                                   <>
-                                    <div className="feed-onboarding-icon">
-                                      <div className="onboarding-focus-demo">
-                                        <div className="onboarding-mock-bar">
-                                          {/* Event 1 (Left) - Feira */}
-                                          <div className="onboarding-mock-event event-1">
-                                            <div className="onboarding-mock-event-border">
-                                              <div className="onboarding-mock-event-img">
-                                                <img src="/mock_feira.jpg" alt="Feira" />
-                                              </div>
-                                            </div>
-                                            <span className="onboarding-mock-event-label">Feira</span>
-                                          </div>
-
-                                          {/* Event 2 (Middle) - Festival */}
-                                          <div className="onboarding-mock-event event-2">
-                                            <div className="onboarding-mock-event-border double-outline">
-                                              <div className="onboarding-mock-event-img">
-                                                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=120&auto=format&fit=crop&q=80" alt="Festival" />
-                                              </div>
-                                            </div>
-                                            <span className="onboarding-mock-event-label">Festival</span>
-                                            
-                                            {/* Hand Icon (maozinha) pointing finger (a apontar o dedo) */}
-                                            <img className="onboarding-tap-icon" src="/mock_hand.png" alt="Touch gesture" width="36" height="36" />
-                                          </div>
-
-                                          {/* Event 3 (Right) - Teatro */}
-                                          <div className="onboarding-mock-event event-3">
-                                            <div className="onboarding-mock-event-border">
-                                              <div className="onboarding-mock-event-img">
-                                                <img src="/mock_teatro.jpg" alt="Teatro" />
-                                              </div>
-                                            </div>
-                                            <span className="onboarding-mock-event-label">Teatro</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
+                                    <div className="feed-onboarding-icon">🎯</div>
                                     <h3 className="feed-onboarding-title">Modo Foco no Evento</h3>
                                     <p className="feed-onboarding-desc">
                                       Podes destacar um Evento para filtrar o feed instantaneamente:
@@ -5533,14 +5496,14 @@ export default function App() {
                                       <div className="feed-onboarding-feature">
                                         <div>
                                           <strong>Focar Evento</strong>
-                                          <p>Mantém pressionado um evento na barra superior para ativar o modo foco. O evento ganha um contorno laranja brilhante.</p>
+                                          <p>Mantém pressionado um Evento na barra superior para ativar o modo foco.</p>
                                         </div>
                                       </div>
 
                                       <div className="feed-onboarding-feature">
                                         <div>
                                           <strong>Filtro Automático</strong>
-                                          <p>O feed vertical passa a mostrar apenas os momentos desse evento. Toca rápido no evento para desativar e ver tudo novamente.</p>
+                                          <p>O feed passa a mostrar apenas os Momentos desse Evento. Para desativar o foco do Evento basta tocar novamente.</p>
                                         </div>
                                       </div>
                                     </div>
