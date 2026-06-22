@@ -4102,11 +4102,18 @@ body {
 }
 
 .auth-form {
-  padding: 40px 30px;
+  padding: 24px 30px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.auth-form-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   margin-top: auto;
   margin-bottom: auto;
   box-sizing: border-box;
@@ -5541,7 +5548,7 @@ input:checked + .slider::before {
 .profile-search-modal {
   width: 100%;
   height: 100%;
-  background-color: rgba(30, 41, 59, 0.95);
+  background: var(--primary-gradient);
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
@@ -5553,8 +5560,8 @@ input:checked + .slider::before {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background-color: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: rgba(0, 0, 0, 0.12);
 }
 
 .profile-search-input-wrapper {
@@ -5567,7 +5574,7 @@ input:checked + .slider::before {
 .profile-search-input-wrapper .search-icon {
   position: absolute;
   left: 12px;
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.85);
   pointer-events: none;
 }
 
@@ -5576,8 +5583,8 @@ input:checked + .slider::before {
   height: 40px;
   padding: 8px 36px 8px 38px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.15);
   color: white;
   font-size: 14px;
   font-family: var(--font-family);
@@ -5586,13 +5593,13 @@ input:checked + .slider::before {
 }
 
 .profile-search-input:focus {
-  border-color: var(--primary);
-  background-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 0 3px rgba(241, 117, 34, 0.2);
+  border-color: white;
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 .profile-search-input::placeholder {
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .search-clear-btn {
@@ -5600,7 +5607,7 @@ input:checked + .slider::before {
   right: 12px;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -5615,7 +5622,7 @@ input:checked + .slider::before {
 .profile-search-close {
   background: none;
   border: none;
-  color: #cbd5e1;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -5638,7 +5645,7 @@ input:checked + .slider::before {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.85);
   letter-spacing: 0.8px;
   margin-bottom: 12px;
   padding-left: 4px;
@@ -5656,15 +5663,17 @@ input:checked + .slider::before {
   gap: 12px;
   padding: 10px 12px;
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  background-color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.2s;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .profile-search-item:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #f8fafc;
   transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .profile-search-item:active {
@@ -5676,8 +5685,8 @@ input:checked + .slider::before {
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  background-color: #1e293b;
+  border: 2px solid rgba(241, 117, 34, 0.15);
+  background-color: #f1f5f9;
 }
 
 .profile-search-item-info {
@@ -5688,14 +5697,14 @@ input:checked + .slider::before {
 }
 
 .profile-search-item-name {
-  color: white;
-  font-weight: 600;
-  font-size: 14px;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 14.5px;
 }
 
 .profile-search-item-badge {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
   align-self: flex-start;
@@ -5704,30 +5713,30 @@ input:checked + .slider::before {
 }
 
 .badge-me {
-  background-color: rgba(241, 117, 34, 0.2);
+  background-color: rgba(241, 117, 34, 0.1);
   color: #f17522;
-  border: 1px solid rgba(241, 117, 34, 0.4);
+  border: 1px solid rgba(241, 117, 34, 0.25);
 }
 
 .badge-org {
-  background-color: rgba(168, 85, 247, 0.2);
+  background-color: rgba(168, 85, 247, 0.1);
   color: #a855f7;
-  border: 1px solid rgba(168, 85, 247, 0.4);
+  border: 1px solid rgba(168, 85, 247, 0.25);
 }
 
 .badge-personal {
-  background-color: rgba(14, 165, 233, 0.2);
+  background-color: rgba(14, 165, 233, 0.1);
   color: #0ea5e9;
-  border: 1px solid rgba(14, 165, 233, 0.4);
+  border: 1px solid rgba(14, 165, 233, 0.25);
 }
 
 .profile-search-item-chevron {
-  color: #475569;
+  color: #94a3b8;
   transition: color 0.2s;
 }
 
 .profile-search-item:hover .profile-search-item-chevron {
-  color: #94a3b8;
+  color: var(--primary);
 }
 
 /* Empty search state */
@@ -5738,12 +5747,12 @@ input:checked + .slider::before {
   justify-content: center;
   padding: 48px 24px;
   text-align: center;
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .empty-search-icon {
   margin-bottom: 16px;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .profile-search-empty .empty-title {
@@ -5755,7 +5764,7 @@ input:checked + .slider::before {
 
 .profile-search-empty .empty-subtitle {
   font-size: 13px;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.85);
   max-width: 240px;
   line-height: 1.5;
 }
