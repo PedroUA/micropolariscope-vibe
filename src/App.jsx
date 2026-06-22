@@ -2611,6 +2611,13 @@ export default function App() {
     return !isShell;
   });
 
+  // Clear map search query when leaving the map tab
+  useEffect(() => {
+    if (currentTab !== 'map') {
+      setMapSearchQuery('');
+    }
+  }, [currentTab]);
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isShell = window.innerWidth > 500 && window.innerHeight > 900 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
